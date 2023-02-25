@@ -1,0 +1,3 @@
+pack.name=Coslang RP
+pack.description=An embedded programming language in MCBE
+tile.coslang:turtle.name=Turtle

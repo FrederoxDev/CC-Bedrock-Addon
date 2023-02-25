@@ -1,0 +1,67 @@
+{
+	"format_version": 2,
+	"metadata": {
+		"authors": [
+			"Frederox"
+		],
+		"generated_with": {
+			"bridge": [
+				"2.6.0"
+			],
+			"dash": [
+				"0.10.8"
+			]
+		}
+	},
+	"header": {
+		"name": "pack.name",
+		"description": "pack.description",
+		"min_engine_version": [
+			1,
+			19,
+			50
+		],
+		"uuid": "9f8c728c-b703-4bec-8d6f-887430730884",
+		"version": [
+			1,
+			0,
+			0
+		]
+	},
+	"modules": [
+		{
+			"type": "data",
+			"uuid": "499d788d-4048-403e-a929-022ab02212e5",
+			"version": [
+				1,
+				0,
+				0
+			]
+		},
+		{
+			"type": "script",
+			"language": "javascript",
+			"uuid": "fbf18160-8abe-42cc-ab20-1c511799d3aa",
+			"entry": "scripts/main.js",
+			"version": [
+				1,
+				0,
+				0
+			]
+		}
+	],
+	"dependencies": [
+		{
+			"module_name": "@minecraft/server",
+			"version": "1.1.0-beta"
+		},
+		{
+			"module_name": "@minecraft/server-gametest",
+			"version": "1.0.0-beta"
+		},
+		{
+			"module_name": "@minecraft/server-ui",
+			"version": "1.0.0-beta"
+		}
+	]
+}
