@@ -1,0 +1,3 @@
+[submodule "coslang"]
+	path = BP/scripts/coslang
+	url = https://github.com/FrederoxDev/coslang
