@@ -1,14 +1,14 @@
-import { Parser } from "./coslang/Parser";
-import { Tokenize } from "./coslang/Lexer";
-import { Interpreter } from "./coslang/Interpreter/Interpreter";
+import { Parser } from "./coslang/src/Parser";
+import { Tokenize } from "./coslang/src/Lexer";
+import { Interpreter } from "./coslang/src/Interpreter/Interpreter";
 import { BeforeChatEvent, world } from "@minecraft/server"
-import { NativeFunction } from "./coslang/Interpreter/Primitives/NativeFunction";
-import { StringStruct } from "./coslang/Interpreter/Structs/StringStruct";
-import { BooleanStruct } from "./coslang/Interpreter/Structs/BooleanStruct";
-import { NumberStruct } from "./coslang/Interpreter/Structs/NumberStruct";
-import { Context } from "./coslang/Interpreter/Context";
-import { StructRuntime } from "./coslang/Interpreter/Primitives/StructRuntime";
-import { Struct } from "./coslang/Interpreter/Primitives/Struct";
+import { NativeFunction } from "./coslang/src/Interpreter/Primitives/NativeFunction";
+import { StringStruct } from "./coslang/src/Interpreter/Structs/StringStruct";
+import { BooleanStruct } from "./coslang/src/Interpreter/Structs/BooleanStruct";
+import { NumberStruct } from "./coslang/src/Interpreter/Structs/NumberStruct";
+import { Context } from "./coslang/src/Interpreter/Context";
+import { StructRuntime } from "./coslang/src/Interpreter/Primitives/StructRuntime";
+import { Struct } from "./coslang/src/Interpreter/Primitives/Struct";
 import { Turtle, drawTurtle } from "./structs/Turtle"
 
 const globals = new Context(undefined)
