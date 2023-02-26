@@ -64,12 +64,6 @@ globals.setVariable("log", new NativeFunction("log", async (interpreter, ctx, ar
         }
     }
 
-    console.log("Starting waiting")
-    await new Promise(resolve => {
-        setTimeout(resolve, 3000);
-    });
-    console.log("Finished Waiting")
-
     console.log("\x1b[90m>\x1b[37m", ...out)
     return [null, ctx];
 }))

@@ -2,8 +2,58 @@
 	"format_version": "1.19.50",
 	"minecraft:block": {
 		"description": {
-			"identifier": "coslang:turtle"
+			"identifier": "coslang:turtle",
+			"properties": {
+				"coslang:rotation": [
+					0,
+					1,
+					2,
+					3
+				]
+			}
 		},
+		"permutations": [
+			{
+				"condition": "query.block_property('coslang:rotation') == 0",
+				"components": {
+					"minecraft:rotation": [
+						0,
+						270,
+						0
+					]
+				}
+			},
+			{
+				"condition": "query.block_property('coslang:rotation') == 1",
+				"components": {
+					"minecraft:rotation": [
+						0,
+						360,
+						0
+					]
+				}
+			},
+			{
+				"condition": "query.block_property('coslang:rotation') == 2",
+				"components": {
+					"minecraft:rotation": [
+						0,
+						90,
+						0
+					]
+				}
+			},
+			{
+				"condition": "query.block_property('coslang:rotation') == 3",
+				"components": {
+					"minecraft:rotation": [
+						0,
+						180,
+						0
+					]
+				}
+			}
+		],
 		"components": {
 			"minecraft:geometry": "geometry.turtle",
 			"minecraft:material_instances": {
@@ -35,12 +85,7 @@
 					12,
 					12
 				]
-			},
-			"minecraft:rotation": [
-				0,
-				270,
-				0
-			]
+			}
 		}
 	}
 }

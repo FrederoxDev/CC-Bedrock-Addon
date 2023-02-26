@@ -7,3 +7,5 @@ Desktop.ini
 builds
 /node_modules/
 package-lock.json
+err/
+input.cos
