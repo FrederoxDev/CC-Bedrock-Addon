@@ -1,6 +1,6 @@
 import { runScript } from "./run";
 import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes } from "@minecraft/server"
-import { Directory, textDirectory, File, resolvePath } from "./FileSystem";
+import { Directory, textDirectory, File, resolvePath, makeDirectory } from "./FileSystem";
 
 // Reassign .log because it does not exist in public
 console.log = console.warn;
@@ -70,27 +70,10 @@ world.events.itemUseOn.subscribe(e => {
     world.say(`Turtle ${turtle.getDynamicProperty(turtleIdProp)} is now connected!`)
 })
 
-const files: Directory = {
+var files: Directory = {
     type: "Directory",
     name: "root",
-    files: [
-        {
-            type: "File",
-            name: "main.cos",
-            content: "let x = 12;"
-        },
-        {
-            type: "Directory",
-            name: "Startup",
-            files: [
-                {
-                    type: "File",
-                    name: "start.cos",
-                    content: "Blablabla"
-                }
-            ]
-        }
-    ]
+    files: []
 }
 
 var currentPath: string[] = []
@@ -111,7 +94,7 @@ world.events.beforeChat.subscribe(e => {
 
     // List Files
     if (command == "dir") {
-        e.message = textDirectory(resolvePath(files, currentPath));
+        e.message = textDirectory(resolvePath(files, currentPath) as Directory);
     }
 
     // Changing directories with relative paths
@@ -124,6 +107,24 @@ world.events.beforeChat.subscribe(e => {
             else newPath.push(relative[i])
         }
 
-        e.message = `/${newPath.join("/")}`
+        const dir = resolvePath(files, newPath);
+        if (dir.type == "FileError") {
+            e.message = `Error: ${dir.error}`
+            return;
+        } 
+
+        currentPath = newPath;
+        e.message = `§7/${newPath.join("/")}>§r`
+    }
+
+    if (command == "mkdir") {
+        const name = rest[0];
+        const newFiles = makeDirectory(files, currentPath, name);
+        if (newFiles.type == "FileError") {
+            e.message = `Error: ${newFiles.error}`
+            return;
+        }
+        files = newFiles;
+        e.message = `§7/${currentPath.join("/")}>`;
     }
 })
