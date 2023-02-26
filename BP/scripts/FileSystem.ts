@@ -49,11 +49,13 @@ export const resolveDirectory = (root: Directory, path: string[]): Directory | F
 }
 
 export const makeDirectory = (dir: Directory, path: string[], dirName: string): Directory | FileError => {
+    path = [...path]
     if (path.length > 0) {
         const index = dir.directories.findIndex(f => f.name == path.shift());
         const result = makeDirectory(dir.directories[index], path, dirName)
         if (result.type == "FileError") return result;
         dir.directories[index] = result;
+        return dir
     }
 
     // Check it doesnt already exist
@@ -70,11 +72,13 @@ export const makeDirectory = (dir: Directory, path: string[], dirName: string): 
 }
 
 export const makeFile = (dir: Directory, path: string[], fileName: string): Directory | FileError => {
+    path = [...path]
     if (path.length > 0) {
         const index = dir.directories.findIndex(f => f.name == path.shift());
         const result = makeDirectory(dir.directories[index], path, fileName)
         if (result.type == "FileError") return result;
         dir.directories[index] = result;
+        return dir;
     }
 
     // Check it doesnt already exist
