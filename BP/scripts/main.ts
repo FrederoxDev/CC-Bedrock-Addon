@@ -1,6 +1,6 @@
 import { runScript } from "./run";
 import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes } from "@minecraft/server"
-import { Directory, textDirectory, File, resolvePath, makeDirectory } from "./FileSystem";
+import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile } from "./FileSystem";
 
 // Reassign .log because it does not exist in public
 console.log = console.warn;
@@ -73,7 +73,45 @@ world.events.itemUseOn.subscribe(e => {
 var files: Directory = {
     type: "Directory",
     name: "root",
-    files: []
+    files: [
+        {
+            name: "data.bin",
+            type: "File",
+            content: "01001"
+        }
+    ],
+    directories: [
+        {
+            type: "Directory",
+            name: "programs",
+            directories: [
+                {
+                    name: "old",
+                    type: "Directory",
+                    directories: [],
+                    files: [
+                        {
+                            name: "hello_world.cos",
+                            type: "File",
+                            content: 'log("hello world");'
+                        }
+                    ]
+                }
+            ],
+            files: [
+                {
+                    name: "main.cos",
+                    type: "File",
+                    content: "let x = 12;"
+                },
+                {
+                    name: "mine.cos",
+                    type: "File",
+                    content: "let x = 12;"
+                }
+            ]
+        }
+    ]
 }
 
 var currentPath: string[] = []
@@ -92,9 +130,14 @@ world.events.beforeChat.subscribe(e => {
         return;
     }
 
-    // List Files
-    if (command == "dir") {
-        e.message = textDirectory(resolvePath(files, currentPath) as Directory);
+    // Tree command
+    if (command == "tree") {
+        const resolved = resolveDirectory(files, currentPath)
+        if (resolved.type == "FileError") {
+            e.message = resolved.error;
+            return;
+        }
+        e.message = directoryTree(resolved);
     }
 
     // Changing directories with relative paths
@@ -107,7 +150,7 @@ world.events.beforeChat.subscribe(e => {
             else newPath.push(relative[i])
         }
 
-        const dir = resolvePath(files, newPath);
+        const dir = resolveDirectory(files, newPath);
         if (dir.type == "FileError") {
             e.message = `Error: ${dir.error}`
             return;
@@ -117,6 +160,7 @@ world.events.beforeChat.subscribe(e => {
         e.message = `§7/${newPath.join("/")}>§r`
     }
 
+    // Make directories
     if (command == "mkdir") {
         const name = rest[0];
         const newFiles = makeDirectory(files, currentPath, name);
@@ -126,5 +170,18 @@ world.events.beforeChat.subscribe(e => {
         }
         files = newFiles;
         e.message = `§7/${currentPath.join("/")}>`;
+    }
+
+    // Make files
+    if (command == "new") {
+        const name = rest[0];
+        console.log(currentPath, "f")
+        const newFiles = makeFile(files, currentPath, name);
+        if (newFiles.type == "FileError") {
+            e.message = `Error: ${newFiles.error}`
+            return;
+        }
+        files = newFiles;
+        e.message = `§7${currentPath.join("/")}/${name}`;
     }
 })
