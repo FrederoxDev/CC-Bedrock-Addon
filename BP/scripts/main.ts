@@ -1,6 +1,7 @@
 import { runScript } from "./run";
-import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes } from "@minecraft/server"
-import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile } from "./FileSystem";
+import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player } from "@minecraft/server"
+import { ModalFormData } from "@minecraft/server-ui"
+import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File } from "./FileSystem";
 
 // Reassign .log because it does not exist in public
 console.log = console.warn;
@@ -58,7 +59,7 @@ world.events.itemUseOn.subscribe(e => {
     const dimension = e.source.dimension
     const block = dimension.getBlock(e.blockLocation);
     if (block.typeId != "coslang:turtle") return;
-    
+
     const turtles = dimension.getEntitiesAtBlockLocation(e.blockLocation)
         .filter(entity => entity.typeId == "coslang:turtle_controller");
 
@@ -117,10 +118,10 @@ var files: Directory = {
 var currentPath: string[] = []
 
 // Command line
-world.events.beforeChat.subscribe(e => {
+world.events.beforeChat.subscribe(async e => {
     if (!e.message.startsWith(">")) return;
     const message = e.message.substring(1).trimStart();
-    const [command, ...rest] = message.split(" "); 
+    const [command, ...rest] = message.split(" ");
     const turtleId = (e.sender.getDynamicProperty(connectedTurtleProp) as string | undefined);
     e.targets = [e.sender]
 
@@ -144,7 +145,7 @@ world.events.beforeChat.subscribe(e => {
     if (command == "cd") {
         const relative = rest[0].split("/")
         const newPath = currentPath
-        
+
         for (var i = 0; i < relative.length; i++) {
             if (relative[i] == "..") newPath.pop();
             else newPath.push(relative[i])
@@ -154,7 +155,7 @@ world.events.beforeChat.subscribe(e => {
         if (dir.type == "FileError") {
             e.message = `Error: ${dir.error}`
             return;
-        } 
+        }
 
         currentPath = newPath;
         e.message = `§7/${newPath.join("/")}>§r`
@@ -175,7 +176,6 @@ world.events.beforeChat.subscribe(e => {
     // Make files
     if (command == "new") {
         const name = rest[0];
-        console.log(currentPath, "f")
         const newFiles = makeFile(files, currentPath, name);
         if (newFiles.type == "FileError") {
             e.message = `Error: ${newFiles.error}`
@@ -183,5 +183,12 @@ world.events.beforeChat.subscribe(e => {
         }
         files = newFiles;
         e.message = `§7${currentPath.join("/")}/${name}`;
+    }
+
+    // Write files
+    if (command == "edit") {
+        const name = rest[0];
+        const file = readFile(files, currentPath, name) as File;
+        const newContent = await openFile(e.sender, name, file.content);
     }
 })

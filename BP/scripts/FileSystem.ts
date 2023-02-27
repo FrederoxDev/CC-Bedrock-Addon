@@ -1,3 +1,6 @@
+import { Player } from "@minecraft/server"
+import { ModalFormData } from "@minecraft/server-ui"
+
 export interface Directory {
     name: string
     type: "Directory"
@@ -71,6 +74,21 @@ export const makeDirectory = (dir: Directory, path: string[], dirName: string): 
     return dir;
 }
 
+export const readFile = (dir: Directory, path: string[], fileName: string): Directory | File | FileError => {
+    path = [...path]
+    if (path.length > 0) {
+        const index = dir.directories.findIndex(f => f.name == path.shift());
+        const result = readFile(dir.directories[index], path, fileName)
+        if (result.type == "FileError") return result;
+        dir.directories[index] = result as Directory;
+        return dir
+    }
+
+    const file = dir.files.find(f => f.name == fileName);
+    if (file == undefined) return {type: "FileError", error: `${fileName} does not exist`}
+    return file;
+}
+
 export const makeFile = (dir: Directory, path: string[], fileName: string): Directory | FileError => {
     path = [...path]
     if (path.length > 0) {
@@ -91,4 +109,15 @@ export const makeFile = (dir: Directory, path: string[], fileName: string): Dire
         content: ""
     });
     return dir;
+}
+
+export const openFile = async(player: Player, fileName: string, content: string): Promise<string> => {
+    const modal = new ModalFormData()
+        .title(fileName)
+        .textField("Paste your file:", "", content);
+
+    // @ts-ignore
+    const res = await modal.show(player);
+    if (res.cancelationReason == "userBusy") return openFile(player, fileName, content);
+    return res.formValues![0];
 }
