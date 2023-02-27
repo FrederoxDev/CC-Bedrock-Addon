@@ -1,7 +1,7 @@
 import { runScript } from "./run";
 import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
-import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File } from "./FileSystem";
+import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile } from "./FileSystem";
 
 // Reassign .log because it does not exist in public
 console.log = console.warn;
@@ -81,38 +81,7 @@ var files: Directory = {
             content: "01001"
         }
     ],
-    directories: [
-        {
-            type: "Directory",
-            name: "programs",
-            directories: [
-                {
-                    name: "old",
-                    type: "Directory",
-                    directories: [],
-                    files: [
-                        {
-                            name: "hello_world.cos",
-                            type: "File",
-                            content: 'log("hello world");'
-                        }
-                    ]
-                }
-            ],
-            files: [
-                {
-                    name: "main.cos",
-                    type: "File",
-                    content: "let x = 12;"
-                },
-                {
-                    name: "mine.cos",
-                    type: "File",
-                    content: "let x = 12;"
-                }
-            ]
-        }
-    ]
+    directories: []
 }
 
 var currentPath: string[] = []
@@ -190,5 +159,6 @@ world.events.beforeChat.subscribe(async e => {
         const name = rest[0];
         const file = readFile(files, currentPath, name) as File;
         const newContent = await openFile(e.sender, name, file.content);
+        writeFile(files, currentPath, name, newContent);
     }
 })

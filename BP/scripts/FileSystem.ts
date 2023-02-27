@@ -74,6 +74,23 @@ export const makeDirectory = (dir: Directory, path: string[], dirName: string): 
     return dir;
 }
 
+export const writeFile = (dir: Directory, path: string[], fileName: string, content: string): Directory | FileError => {
+    path = [...path]
+    if (path.length > 0) {
+        const index = dir.directories.findIndex(f => f.name == path.shift());
+        const result = writeFile(dir.directories[index], path, fileName, content)
+        if (result.type == "FileError") return result;
+        dir.directories[index] = result;
+        return dir
+    }
+
+    const fileIdx = dir.files.findIndex(f => f.name == fileName);
+    if (fileIdx == -1) return { type: "FileError", error: `${fileIdx} does not exist!` };
+
+    dir.files[fileIdx].content = content;
+    return dir;
+}
+
 export const readFile = (dir: Directory, path: string[], fileName: string): Directory | File | FileError => {
     path = [...path]
     if (path.length > 0) {
@@ -121,3 +138,4 @@ export const openFile = async(player: Player, fileName: string, content: string)
     if (res.cancelationReason == "userBusy") return openFile(player, fileName, content);
     return res.formValues![0];
 }
+
