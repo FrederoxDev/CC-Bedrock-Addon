@@ -1,4 +1,4 @@
-import { BlockLocation, BlockType, system, world, MinecraftBlockTypes, BlockPermutation, Block } from "@minecraft/server"
+import { BlockLocation, BlockType, system, world, MinecraftBlockTypes, BlockPermutation, Block, Entity, Vector } from "@minecraft/server"
 import { NativeFunction } from "../coslang/src/Interpreter/Primitives/NativeFunction"
 import { Struct } from "../coslang/src/Interpreter/Primitives/Struct";
 
@@ -13,7 +13,11 @@ function delay(): Promise<void> {
     });
 }
 
-export function drawTurtle(oldPosition, position, rotation) {
+export function drawTurtle(oldPosition, position, rotation, ctx) {
+    // Move the entity controller
+    const entity = ctx.getProtectedData("entity") as Entity
+    entity.teleport(new Vector(position[0] + 0.5, position[1], position[2] + 0.5), entity.dimension, 0, 0, false)
+
     // Erase old
     const oldBlockLocation = new BlockLocation(oldPosition[0], oldPosition[1], oldPosition[2]);
     world.getDimension("overworld").getBlock(oldBlockLocation).setType(MinecraftBlockTypes.get("minecraft:air"))
@@ -34,6 +38,7 @@ const overworld = world.getDimension("overworld")
 
 export const Turtle = new Struct("Turtle", [], [
     new NativeFunction("Forward", async (interpreter, ctx, args) => {
+        await delay()
         const oldPosition: [number, number, number] = ctx.getProtectedData("position");
         const rotation = ctx.getProtectedData("rotation");
         const position = [...oldPosition]
@@ -42,41 +47,40 @@ export const Turtle = new Struct("Turtle", [], [
         else if (rotation % 4 == 2) position[0] -= 1;
         else if (rotation % 4 == 3) position[2] += 1;
 
-        drawTurtle(oldPosition, position, rotation % 4);
+        drawTurtle(oldPosition, position, rotation % 4, ctx);
         ctx.setProtectedData("position", position);
-
-        await delay()
+        
         return [null, ctx];
     }),
 
     new NativeFunction("TurnRight", async (interpreter, ctx, args) => {
+        await delay()
         const position: [number, number, number] = ctx.getProtectedData("position");
         var rotation: number = ctx.getProtectedData("rotation") - 1;
         if (rotation > 3) rotation = 0;
         if (rotation < 0) rotation = 3;
 
-        drawTurtle(position, position, rotation % 4);
+        drawTurtle(position, position, rotation % 4, ctx);
         ctx.setProtectedData("rotation", rotation);
 
-        await delay()
+        
         return [null, ctx];
     }),
 
     new NativeFunction("TurnLeft", async (interpreter, ctx, args) => {
+        await delay()
         const position: [number, number, number] = ctx.getProtectedData("position");
         var rotation: number = ctx.getProtectedData("rotation") + 1;
         if (rotation > 3) rotation = 0;
         if (rotation < 0) rotation = 3;
 
-        drawTurtle(position, position, rotation % 4);
+        drawTurtle(position, position, rotation % 4, ctx);
         ctx.setProtectedData("rotation", rotation);
-
-        await delay()
+        
         return [null, ctx];
     }),
 
     new NativeFunction("InspectDown", async (interpreter, ctx, args) => {
-        await delay()
         const position: [number, number, number] = ctx.getProtectedData("position");
         const blockLocation = new BlockLocation(position[0], position[1] - 1, position[2]);
 

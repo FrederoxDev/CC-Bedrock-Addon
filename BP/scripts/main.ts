@@ -1,7 +1,7 @@
-import { runScript } from "./run";
-import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player } from "@minecraft/server"
+import { TurtleInterpreter } from "./run";
+import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player, Entity } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
-import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile } from "./FileSystem";
+import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError } from "./FileSystem";
 
 // Reassign .log because it does not exist in public
 console.log = console.warn;
@@ -41,8 +41,8 @@ world.events.blockPlace.subscribe(e => {
     const controller = e.dimension.spawnEntity("coslang:turtle_controller", e.block.location);
     const nextId = (world.getDynamicProperty(nextTurtleIdProp) as number) ?? 0;
     controller.setDynamicProperty(turtleIdProp, nextId + 1);
-    controller.setDynamicProperty(turtleFilesProp, "{}");
     world.setDynamicProperty(nextTurtleIdProp, nextId + 1);
+    controller.nameTag = `Turtle: ${nextId + 1}`;
 })
 
 // When a turtle is broken in the world, need to kill the coslang:turtle_controller
@@ -67,22 +67,10 @@ world.events.itemUseOn.subscribe(e => {
     if (turtles.length > 1) return console.log("Multiple turtle controllers found!");
 
     const turtle = turtles[0];
-    e.source.setDynamicProperty(connectedTurtleProp, turtle.getDynamicProperty(turtleIdProp)!);
-    world.say(`Turtle ${turtle.getDynamicProperty(turtleIdProp)} is now connected!`)
+    const turtleID = turtle.getDynamicProperty(turtleIdProp) as number
+    e.source.setDynamicProperty(connectedTurtleProp, turtleID!);
+    world.say(`Turtle ${turtleID} is now connected!`)
 })
-
-var files: Directory = {
-    type: "Directory",
-    name: "root",
-    files: [
-        {
-            name: "data.bin",
-            type: "File",
-            content: "01001"
-        }
-    ],
-    directories: []
-}
 
 var currentPath: string[] = []
 
@@ -92,6 +80,25 @@ world.events.beforeChat.subscribe(async e => {
     const message = e.message.substring(1).trimStart();
     const [command, ...rest] = message.split(" ");
     const turtleId = (e.sender.getDynamicProperty(connectedTurtleProp) as string | undefined);
+    const allTurtles = Array.from(e.sender.dimension.getEntities({ type: "coslang:turtle_controller" }))
+
+    var turtle: Entity | null = null;
+    for (var i = 0; i < allTurtles.length; i++) {
+        if (allTurtles[i].getDynamicProperty(turtleIdProp) == turtleId) {
+            turtle = allTurtles[i];
+            break;
+        }
+    }
+
+    if (turtle == null) {
+        world.say("Turtle with ID " + turtleId + " not found!")
+        return;
+    }
+
+    const emptyFS: Directory = { name: "root", type: "Directory", directories: [], files: [] }
+    const turtleString: string | undefined = allTurtles[i].getDynamicProperty(turtleFilesProp) as string | undefined
+    const turtleFiles: Directory = turtleString == undefined ? emptyFS : JSON.parse(turtleString);
+
     e.targets = [e.sender]
 
     // Check the player is connected to a turtle
@@ -102,7 +109,7 @@ world.events.beforeChat.subscribe(async e => {
 
     // Tree command
     if (command == "tree") {
-        const resolved = resolveDirectory(files, currentPath)
+        const resolved = resolveDirectory(turtleFiles, currentPath)
         if (resolved.type == "FileError") {
             e.message = resolved.error;
             return;
@@ -120,7 +127,7 @@ world.events.beforeChat.subscribe(async e => {
             else newPath.push(relative[i])
         }
 
-        const dir = resolveDirectory(files, newPath);
+        const dir = resolveDirectory(turtleFiles, newPath);
         if (dir.type == "FileError") {
             e.message = `Error: ${dir.error}`
             return;
@@ -133,32 +140,52 @@ world.events.beforeChat.subscribe(async e => {
     // Make directories
     if (command == "mkdir") {
         const name = rest[0];
-        const newFiles = makeDirectory(files, currentPath, name);
+        const newFiles = makeDirectory(turtleFiles, currentPath, name);
         if (newFiles.type == "FileError") {
             e.message = `Error: ${newFiles.error}`
             return;
         }
-        files = newFiles;
+        turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
         e.message = `§7/${currentPath.join("/")}>`;
     }
 
     // Make files
     if (command == "new") {
         const name = rest[0];
-        const newFiles = makeFile(files, currentPath, name);
+        const newFiles = makeFile(turtleFiles, currentPath, name);
         if (newFiles.type == "FileError") {
             e.message = `Error: ${newFiles.error}`
             return;
         }
-        files = newFiles;
+        turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
         e.message = `§7${currentPath.join("/")}/${name}`;
     }
 
     // Write files
     if (command == "edit") {
         const name = rest[0];
-        const file = readFile(files, currentPath, name) as File;
+        const file = readFile(turtleFiles, currentPath, name) as File | FileError;
+        if (file.type == "FileError") return world.say(file.error);
         const newContent = await openFile(e.sender, name, file.content);
-        writeFile(files, currentPath, name, newContent);
+        writeFile(turtleFiles, currentPath, name, newContent);
+        turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
+    }
+
+    if (command == "run") {
+        try {
+        const name = rest[0];
+        const file = readFile(turtleFiles, currentPath, name) as File | FileError;
+        if (file.type == "FileError") return world.say(file.error);
+        
+        // Execute the file
+        const turtleInterpreter = new TurtleInterpreter(turtle);
+        await turtleInterpreter.runScript(file.content)
+
+        world.say(`Finished running ${file.name}`);
+        } catch (e) { 
+            world.say("Error")
+            world.say(e.stack)
+            throw e
+        }
     }
 })
