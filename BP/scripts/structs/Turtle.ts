@@ -46,6 +46,9 @@ export const Turtle = new Struct("Turtle", [], [
         else if (rotation % 4 == 1) position[2] -= 1;
         else if (rotation % 4 == 2) position[0] -= 1;
         else if (rotation % 4 == 3) position[2] += 1;
+        const blockPos = new BlockLocation(position[0], position[1], position[2])
+
+        if (!overworld.getBlock(blockPos).canPlace(MinecraftBlockTypes.stone)) return [null, ctx]
 
         drawTurtle(oldPosition, position, rotation % 4, ctx);
         ctx.setProtectedData("position", position);
@@ -80,11 +83,69 @@ export const Turtle = new Struct("Turtle", [], [
         return [null, ctx];
     }),
 
+    new NativeFunction("Inspect", async (interpreter, ctx, args) => {
+        const [...position] = ctx.getProtectedData("position");
+        const rotation = ctx.getProtectedData("rotation");
+
+        if (rotation % 4 == 0) position[0] += 1;
+        else if (rotation % 4 == 1) position[2] -= 1;
+        else if (rotation % 4 == 2) position[0] -= 1;
+        else if (rotation % 4 == 3) position[2] += 1;
+        const blockPos = new BlockLocation(position[0], position[1], position[2])
+
+        const blockId = overworld.getBlock(blockPos).typeId;
+        return interpreter.primitiveString({ value: `${blockId}` }, ctx)
+    }),
+
     new NativeFunction("InspectDown", async (interpreter, ctx, args) => {
         const position: [number, number, number] = ctx.getProtectedData("position");
         const blockLocation = new BlockLocation(position[0], position[1] - 1, position[2]);
 
         const blockId = overworld.getBlock(blockLocation).typeId;
         return interpreter.primitiveString({ value: `${blockId}` }, ctx)
-    })
+    }),
+
+    new NativeFunction("InspectUp", async (interpreter, ctx, args) => {
+        const position: [number, number, number] = ctx.getProtectedData("position");
+        const blockLocation = new BlockLocation(position[0], position[1] + 1, position[2]);
+
+        const blockId = overworld.getBlock(blockLocation).typeId;
+        return interpreter.primitiveString({ value: `${blockId}` }, ctx)
+    }),
+
+    new NativeFunction("Dig", async (interpreter, ctx, args) => {
+        const [...position] = ctx.getProtectedData("position");
+        const rotation = ctx.getProtectedData("rotation");
+
+        if (rotation % 4 == 0) position[0] += 1;
+        else if (rotation % 4 == 1) position[2] -= 1;
+        else if (rotation % 4 == 2) position[0] -= 1;
+        else if (rotation % 4 == 3) position[2] += 1;
+        const blockPos = new BlockLocation(position[0], position[1], position[2])
+
+        await delay()
+        overworld.getBlock(blockPos).setType(MinecraftBlockTypes.air);
+
+        return [null, ctx]
+    }),
+
+    new NativeFunction("DigUp", async (interpreter, ctx, args) => {
+        const [...position] = ctx.getProtectedData("position");
+        const blockPos = new BlockLocation(position[0], position[1] + 1, position[2])
+
+        await delay()
+        overworld.getBlock(blockPos).setType(MinecraftBlockTypes.air);
+
+        return [null, ctx]
+    }),
+
+    new NativeFunction("DigDown", async (interpreter, ctx, args) => {
+        const [...position] = ctx.getProtectedData("position");
+        const blockPos = new BlockLocation(position[0], position[1] - 1, position[2])
+
+        await delay()
+        overworld.getBlock(blockPos).setType(MinecraftBlockTypes.air);
+
+        return [null, ctx]
+    }),
 ])
