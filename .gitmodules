@@ -1,3 +1,3 @@
 [submodule "cosmic"]
-	path = BP/scripts/coslang
+	path = BP/scripts/cosmic
 	url = https://github.com/FrederoxDev/Cosmic
