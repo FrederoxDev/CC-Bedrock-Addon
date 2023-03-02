@@ -1,5 +1,5 @@
 import { TurtleInterpreter } from "./run";
-import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player, Entity } from "@minecraft/server"
+import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player, Entity, EntityInventoryComponent } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
 import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError } from "./FileSystem";
 
@@ -173,19 +173,31 @@ world.events.beforeChat.subscribe(async e => {
 
     if (command == "run") {
         try {
-        const name = rest[0];
-        const file = readFile(turtleFiles, currentPath, name) as File | FileError;
-        if (file.type == "FileError") return world.say(file.error);
-        
-        // Execute the file
-        const turtleInterpreter = new TurtleInterpreter(turtle);
-        await turtleInterpreter.runScript(file.content)
+            const name = rest[0];
+            const file = readFile(turtleFiles, currentPath, name) as File | FileError;
+            if (file.type == "FileError") return world.say(file.error);
 
-        world.say(`Finished running ${file.name}`);
-        } catch (e) { 
+            // Execute the file
+            const turtleInterpreter = new TurtleInterpreter(turtle);
+            await turtleInterpreter.runScript(file.content)
+
+            world.say(`Finished running ${file.name}`);
+        } catch (e) {
             world.say("Error")
             world.say(e.stack)
             throw e
         }
+    }
+
+    if (command == "inventory") {
+        const inventory = turtle.getComponent("minecraft:inventory") as EntityInventoryComponent
+
+        for (var i = 0; i < 16; i++) {
+            const item = inventory.container.getItem(i)
+            if (item == undefined) continue;
+            world.say(`§7${i}.§r ${item.typeId} - ${item.amount}`)
+        }
+
+        e.cancel = true
     }
 })

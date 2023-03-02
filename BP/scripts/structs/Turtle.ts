@@ -1,8 +1,9 @@
-import { BlockLocation, BlockType, system, world, MinecraftBlockTypes, BlockPermutation, Block, Entity, Vector } from "@minecraft/server"
+import { BlockLocation, BlockType, system, world, MinecraftBlockTypes, BlockPermutation, Block, Entity, Vector, EntityItemComponent, EntityInventoryComponent, ItemStack, MinecraftItemTypes, ItemType, ItemTypes } from "@minecraft/server"
 import { NativeFunction } from "../cosmic/src/Interpreter/Primitives/NativeFunction"
 import { Struct } from "../cosmic/src/Interpreter/Primitives/Struct";
 
 const movementDelayInTicks = 10;
+console.log = console.warn
 
 function delay(): Promise<void> {
     return new Promise(resolve => {
@@ -35,6 +36,49 @@ export function drawTurtle(oldPosition, position, rotation, ctx) {
 }
 
 const overworld = world.getDimension("overworld")
+
+const pickUpBlock = (blockPos: BlockLocation, inventory: EntityInventoryComponent) => {
+    overworld.getEntitiesAtBlockLocation(blockPos).forEach(entity => {
+        if (entity.typeId == "minecraft:item") {
+            const itemComponent = entity.getComponent("minecraft:item") as EntityItemComponent
+
+            // The item will always fit
+            if (inventory.container.emptySlotsCount > 0) {
+                inventory.container.addItem(itemComponent.itemStack)
+                entity.kill()
+            }
+            else {
+                var remainingItems = itemComponent.itemStack.amount;
+                
+                for (var i = 0; i < 16; i++) {
+                    const slot = inventory.container.getItem(i);
+                    if (slot.typeId != itemComponent.itemStack.typeId) continue;
+
+                    const startAmount = slot.amount;
+                    const itemType = ItemTypes.get(slot.typeId)
+                    const newItemStack = new ItemStack(itemType, Math.min(slot.amount + remainingItems, 64));
+
+                    const itemsAdded = newItemStack.amount - startAmount;
+                    if (itemsAdded > 0) inventory.container.setItem(i, newItemStack);
+                    remainingItems -= itemsAdded;
+
+                    if (remainingItems == 0) break; 
+                }
+                
+                if (remainingItems > 0) {
+                    const type = ItemTypes.get(itemComponent.itemStack.typeId)
+                    const blockLoc = new BlockLocation(
+                        Math.floor(entity.location.x), 
+                        Math.floor(entity.location.y), 
+                        Math.floor(entity.location.z)
+                    )
+                    overworld.spawnItem(new ItemStack(type, remainingItems, itemComponent.itemStack.data), blockLoc)
+                }
+                entity.kill();
+            }
+        }
+    })
+}
 
 export const Turtle = new Struct("Turtle", [], [
     new NativeFunction("Forward", async (interpreter, ctx, args) => {
@@ -124,7 +168,9 @@ export const Turtle = new Struct("Turtle", [], [
         const blockPos = new BlockLocation(position[0], position[1], position[2])
 
         await delay()
-        overworld.getBlock(blockPos).setType(MinecraftBlockTypes.air);
+        await overworld.runCommandAsync(`setblock ${position[0]} ${position[1]} ${position[2]} air 0 destroy`)
+        const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
+        pickUpBlock(blockPos, inventory)
 
         return [null, ctx]
     }),
@@ -134,7 +180,9 @@ export const Turtle = new Struct("Turtle", [], [
         const blockPos = new BlockLocation(position[0], position[1] + 1, position[2])
 
         await delay()
-        overworld.getBlock(blockPos).setType(MinecraftBlockTypes.air);
+        await overworld.runCommandAsync(`setblock ${position[0]} ${position[1] + 1} ${position[2]} air 0 destroy`)
+        const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
+        pickUpBlock(blockPos, inventory)
 
         return [null, ctx]
     }),
@@ -144,7 +192,9 @@ export const Turtle = new Struct("Turtle", [], [
         const blockPos = new BlockLocation(position[0], position[1] - 1, position[2])
 
         await delay()
-        overworld.getBlock(blockPos).setType(MinecraftBlockTypes.air);
+        await overworld.runCommandAsync(`setblock ${position[0]} ${position[1] - 1} ${position[2]} air 0 destroy`)
+        const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
+        pickUpBlock(blockPos, inventory)
 
         return [null, ctx]
     }),
