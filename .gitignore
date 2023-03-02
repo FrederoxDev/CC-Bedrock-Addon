@@ -6,6 +6,5 @@ Desktop.ini
 !.bridge/extensions
 builds
 /node_modules/
-package-lock.json
 err/
 input.cos
