@@ -1,4 +1,4 @@
 export default {
     title: 'Coslang',
-    base: '/coslang/'
+    base: '/CC-Bedrock/'
 }

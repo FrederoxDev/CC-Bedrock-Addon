@@ -1,14 +1,14 @@
-import { Parser } from "./coslang/src/Parser";
-import { Tokenize } from "./coslang/src/Lexer";
-import { Interpreter } from "./coslang/src/Interpreter/Interpreter";
+import { Parser } from "./cosmic/src/Parser";
+import { Tokenize } from "./cosmic/src/Lexer";
+import { Interpreter } from "./cosmic/src/Interpreter/Interpreter";
 import { BeforeChatEvent, Entity, Vector, world } from "@minecraft/server"
-import { NativeFunction } from "./coslang/src/Interpreter/Primitives/NativeFunction";
-import { StringStruct } from "./coslang/src/Interpreter/Structs/StringStruct";
-import { BooleanStruct } from "./coslang/src/Interpreter/Structs/BooleanStruct";
-import { NumberStruct } from "./coslang/src/Interpreter/Structs/NumberStruct";
-import { Context } from "./coslang/src/Interpreter/Context";
-import { StructRuntime } from "./coslang/src/Interpreter/Primitives/StructRuntime";
-import { Struct } from "./coslang/src/Interpreter/Primitives/Struct";
+import { NativeFunction } from "./cosmic/src/Interpreter/Primitives/NativeFunction";
+import { StringStruct } from "./cosmic/src/Interpreter/Structs/StringStruct";
+import { BooleanStruct } from "./cosmic/src/Interpreter/Structs/BooleanStruct";
+import { NumberStruct } from "./cosmic/src/Interpreter/Structs/NumberStruct";
+import { Context } from "./cosmic/src/Interpreter/Context";
+import { StructRuntime } from "./cosmic/src/Interpreter/Primitives/StructRuntime";
+import { Struct } from "./cosmic/src/Interpreter/Primitives/Struct";
 import { Turtle, drawTurtle } from "./structs/Turtle"
 
 export class TurtleInterpreter {

@@ -1,5 +1,6 @@
-pack.name=Coslang RP
+pack.name=CC: Bedrock
 pack.description=An embedded programming language in MCBE
+
 tile.coslang:turtle.name=Turtle
 item.spawn_egg.entity.coslang:turtle_controller.name=Spawn Turtle Controller
 entity.coslang:turtle_controller.name=Turtle Controller

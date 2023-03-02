@@ -1,6 +1,6 @@
 {
 	"type": "minecraftBedrock",
-	"name": "Coslang",
+	"name": "ComputerCraft",
 	"namespace": "coslang",
 	"authors": [
 		"Frederox"
@@ -37,7 +37,7 @@
 			[
 				"simpleRewrite",
 				{
-					"packName": "Coslang"
+					"packName": "ComputerCraft"
 				}
 			]
 		]

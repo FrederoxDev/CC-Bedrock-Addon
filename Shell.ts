@@ -1,14 +1,14 @@
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from "fs"
-import { Context } from "./BP/scripts/coslang/src/Interpreter/Context";
-import { Interpreter } from "./BP/scripts/coslang/src/Interpreter/Interpreter";
-import { NativeFunction } from "./BP/scripts/coslang/src/Interpreter/Primitives/NativeFunction";
-import { Struct } from "./BP/scripts/coslang/src/Interpreter/Primitives/Struct";
-import { StructRuntime } from "./BP/scripts/coslang/src/Interpreter/Primitives/StructRuntime";
-import { BooleanStruct } from "./BP/scripts/coslang/src/Interpreter/Structs/BooleanStruct";
-import { NumberStruct } from "./BP/scripts/coslang/src/Interpreter/Structs/NumberStruct";
-import { StringStruct } from "./BP/scripts/coslang/src/Interpreter/Structs/StringStruct";
-import { Tokenize } from "./BP/scripts/coslang/src/Lexer";
-import { Parser } from "./BP/scripts/coslang/src/Parser";
+import { Context } from "./BP/scripts/cosmic/src/Interpreter/Context";
+import { Interpreter } from "./BP/scripts/cosmic/src/Interpreter/Interpreter";
+import { NativeFunction } from "./BP/scripts/cosmic/src/Interpreter/Primitives/NativeFunction";
+import { Struct } from "./BP/scripts/cosmic/src/Interpreter/Primitives/Struct";
+import { StructRuntime } from "./BP/scripts/cosmic/src/Interpreter/Primitives/StructRuntime";
+import { BooleanStruct } from "./BP/scripts/cosmic/src/Interpreter/Structs/BooleanStruct";
+import { NumberStruct } from "./BP/scripts/cosmic/src/Interpreter/Structs/NumberStruct";
+import { StringStruct } from "./BP/scripts/cosmic/src/Interpreter/Structs/StringStruct";
+import { Tokenize } from "./BP/scripts/cosmic/src/Lexer";
+import { Parser } from "./BP/scripts/cosmic/src/Parser";
 
 if (!existsSync("./err")) mkdirSync("./err");
 const input = readFileSync("./input.cos", { encoding: 'utf-8' });

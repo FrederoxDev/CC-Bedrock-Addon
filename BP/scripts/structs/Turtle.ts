@@ -1,6 +1,6 @@
 import { BlockLocation, BlockType, system, world, MinecraftBlockTypes, BlockPermutation, Block, Entity, Vector } from "@minecraft/server"
-import { NativeFunction } from "../coslang/src/Interpreter/Primitives/NativeFunction"
-import { Struct } from "../coslang/src/Interpreter/Primitives/Struct";
+import { NativeFunction } from "../cosmic/src/Interpreter/Primitives/NativeFunction"
+import { Struct } from "../cosmic/src/Interpreter/Primitives/Struct";
 
 const movementDelayInTicks = 10;
 
