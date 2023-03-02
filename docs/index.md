@@ -1,7 +1,6 @@
-# Coslang
+# Cosmic Docs
+- [Structs](cosmic/structs.md)
+- [Operator Overloading](cosmic/operators.md)
 
-## Language Built-Ins
-[Number](structs/number.md)
-
-## Coslang Specific
-[Turtle](structs/turtle.md)
+# CC: BE Docs
+- [Turtle](cc/turtle.md)
