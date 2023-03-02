@@ -1,3 +1,6 @@
 [submodule "cosmic"]
 	path = BP/scripts/cosmic
 	url = https://github.com/FrederoxDev/Cosmic
+[submodule "BP/scripts/cosmic"]
+	path = BP/scripts/cosmic
+	url = https://github.com/FrederoxDev/Cosmic.git
