@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
   "dependencies": {
     "@minecraft/server": "^1.1.0-beta.1.19.60-stable",
     "@minecraft/server-ui": "^1.0.0-beta.11940b24"
