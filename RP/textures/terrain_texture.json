@@ -2,6 +2,9 @@
 	"texture_data": {
 		"coslang_turtle": {
 			"textures": "textures/blocks/robot"
+		},
+		"coslang_display": {
+			"textures": "textures/blocks/display"
 		}
 	}
 }

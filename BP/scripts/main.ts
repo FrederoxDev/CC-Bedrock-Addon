@@ -1,5 +1,5 @@
 import { TurtleInterpreter } from "./run";
-import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player, Entity, EntityInventoryComponent } from "@minecraft/server"
+import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player, Entity, EntityInventoryComponent, Block, BlockLocation, BlockPermutation } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
 import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError } from "./FileSystem";
 
@@ -199,5 +199,34 @@ world.events.beforeChat.subscribe(async e => {
         }
 
         e.cancel = true
+    }
+})
+
+world.events.beforeChat.subscribe(async e => {
+    if (!e.message.startsWith("<")) return;
+    try {
+        const message = e.message.substring(1).trimStart();
+        const [command, ...rest] = message.split(" ");
+
+        const x = parseInt(rest[0]);
+        // const y = parseInt(rest[1]);
+        const idx = x
+
+        const overworld = world.getDimension("overworld")
+        const display = overworld.getBlock(new BlockLocation(242, -46, 3))
+
+        type BlockProp = { name: string, value: any }
+        const group = Math.floor(idx / 4);
+        const permutation = display.permutation;
+        const bytesArr = (permutation.getProperty(`coslang:group_${group}`) as BlockProp)
+            .value.toString().padStart(4, "0").split("");
+
+        bytesArr[idx % 4] = bytesArr[idx % 4] == "0" ? "1" : "0";
+        (permutation.getProperty(`coslang:group_${group}`) as BlockProp).value = parseInt(bytesArr.join(""));
+        display.setPermutation(permutation)
+        console.log(group, bytesArr.join(""))
+    }
+    catch (e) {
+        console.warn(e)
     }
 })

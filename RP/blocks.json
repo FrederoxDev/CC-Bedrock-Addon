@@ -1,5 +1,8 @@
 {
 	"coslang:turtle": {
 		"sound": "stone"
+	},
+	"coslang:display": {
+		"sound": "stone"
 	}
 }
