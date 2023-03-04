@@ -1,0 +1,17 @@
+{
+	"format_version": "1.8.0",
+	"render_controllers": {
+		"controller.render.pixel": {
+			"geometry": "Geometry.default",
+			"materials": [
+				{
+					"*": "Material.default"
+				}
+			],
+			"textures": [
+				"q.property('coslang:color') == 0 ? Texture.white : q.property('coslang:color') == 1 ? Texture.red : q.property('coslang:color') == 2 ? Texture.orange : q.property('coslang:color') == 3 ? Texture.yellow : q.property('coslang:color') == 4 ? Texture.green : q.property('coslang:color') == 5 ? Texture.blue : Texture.purple"
+			]
+		}
+	}
+}
+

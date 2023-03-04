@@ -1,0 +1,18 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.pixel.position": {
+			"loop": true,
+			"animation_length": 0.0,
+			"bones": {
+				"main": {
+					"position": [
+						"query.property('coslang:x')",
+						"query.property('coslang:y')",
+						0
+					]
+				}
+			}
+		}
+	}
+}

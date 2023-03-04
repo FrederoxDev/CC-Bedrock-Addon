@@ -204,29 +204,20 @@ world.events.beforeChat.subscribe(async e => {
 
 world.events.beforeChat.subscribe(async e => {
     if (!e.message.startsWith("<")) return;
-    try {
-        const message = e.message.substring(1).trimStart();
-        const [command, ...rest] = message.split(" ");
+    const message = e.message.substring(1).trimStart();
+    const [command, ...rest] = message.split(" ");
+    if (command == "draw") {
+        let x = parseInt(rest[0] ?? "0")
+        let y = parseInt(rest[1] ?? "0")
+        let col = parseInt(rest[2] ?? "0")
 
-        const x = parseInt(rest[0]);
-        // const y = parseInt(rest[1]);
-        const idx = x
+        const blockPosition = new BlockLocation(0, -59, 0);
+        const pixel = e.sender.dimension.spawnEntity("coslang:pixel", blockPosition)
 
-        const overworld = world.getDimension("overworld")
-        const display = overworld.getBlock(new BlockLocation(242, -46, 3))
-
-        type BlockProp = { name: string, value: any }
-        const group = Math.floor(idx / 4);
-        const permutation = display.permutation;
-        const bytesArr = (permutation.getProperty(`coslang:group_${group}`) as BlockProp)
-            .value.toString().padStart(4, "0").split("");
-
-        bytesArr[idx % 4] = bytesArr[idx % 4] == "0" ? "1" : "0";
-        (permutation.getProperty(`coslang:group_${group}`) as BlockProp).value = parseInt(bytesArr.join(""));
-        display.setPermutation(permutation)
-        console.log(group, bytesArr.join(""))
-    }
-    catch (e) {
-        console.warn(e)
+        await Promise.all([
+            pixel.runCommandAsync(`event entity @s coslang:set_x_${x}`),
+            pixel.runCommandAsync(`event entity @s coslang:set_y_${y}`),
+            pixel.runCommandAsync(`event entity @s coslang:set_color_${col}`)
+        ])
     }
 })

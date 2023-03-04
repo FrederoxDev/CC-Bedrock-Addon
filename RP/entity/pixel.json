@@ -1,0 +1,38 @@
+{
+	"format_version": "1.10.0",
+	"minecraft:client_entity": {
+		"description": {
+			"identifier": "coslang:pixel",
+			"animations": {
+				"position": "animation.pixel.position"
+			},
+			"scripts": {
+				"animate": [
+					"position"
+				]
+			},
+			"materials": {
+				"default": "entity_alphatest"
+			},
+			"textures": {
+				"white": "textures/entity/white",
+				"red": "textures/entity/red",
+				"orange": "textures/entity/orange",
+				"yellow": "textures/entity/yellow",
+				"green": "textures/entity/green",
+				"blue": "textures/entity/blue",
+				"purple": "textures/entity/purple"
+			},
+			"geometry": {
+				"default": "geometry.pixel"
+			},
+			"render_controllers": [
+				"controller.render.pixel"
+			],
+			"spawn_egg": {
+				"base_color": "#000000",
+				"overlay_color": "#FFFFFF"
+			}
+		}
+	}
+}
