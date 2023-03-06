@@ -44,22 +44,18 @@ const pixel = {
 	}
 }
 
-for (var i = 0; i < 16; i++) {
-    pixel["minecraft:entity"].events[`coslang:set_x_${i}`] = {
-        "set_property": { "coslang:x": i }
-    }
-}
-
-for (var i = 0; i < 16; i++) {
-    pixel["minecraft:entity"].events[`coslang:set_y_${i}`] = {
-        "set_property": { "coslang:y": i }
-    }
+for (var x = 0; x < 16; x++) {
+	for (var y = 0; y < 16; y++) {
+		pixel["minecraft:entity"].events[`coslang:set_${x}_${y}`] = {
+			"set_property": { "coslang:x": x, "coslang:y": y }
+		}
+	}
 }
 
 for (var i = 0; i < 7; i++) {
 	pixel["minecraft:entity"].events[`coslang:set_color_${i}`] = {
-        "set_property": { "coslang:color": i }
-    }
+		"set_property": { "coslang:color": i }
+	}
 }
 
 console.log(JSON.stringify(pixel))

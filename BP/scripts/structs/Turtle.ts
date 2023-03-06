@@ -1,6 +1,6 @@
 import { BlockLocation, BlockType, system, world, MinecraftBlockTypes, BlockPermutation, Block, Entity, Vector, EntityItemComponent, EntityInventoryComponent, ItemStack, MinecraftItemTypes, ItemType, ItemTypes } from "@minecraft/server"
-import { NativeFunction } from "../cosmic/src/Interpreter/Primitives/NativeFunction"
-import { Struct } from "../cosmic/src/Interpreter/Primitives/Struct";
+import { NativeFunction } from "../cosmic/src/Struct/NativeFunction";
+import { StructType } from "../cosmic/src/Struct/StructType";
 
 const movementDelayInTicks = 10;
 console.log = console.warn
@@ -80,122 +80,122 @@ const pickUpBlock = (blockPos: BlockLocation, inventory: EntityInventoryComponen
     })
 }
 
-export const Turtle = new Struct("Turtle", [], [
-    new NativeFunction("Forward", async (interpreter, ctx, args) => {
-        await delay()
-        const oldPosition: [number, number, number] = ctx.getProtectedData("position");
-        const rotation = ctx.getProtectedData("rotation");
-        const position = [...oldPosition]
-        if (rotation % 4 == 0) position[0] += 1;
-        else if (rotation % 4 == 1) position[2] -= 1;
-        else if (rotation % 4 == 2) position[0] -= 1;
-        else if (rotation % 4 == 3) position[2] += 1;
-        const blockPos = new BlockLocation(position[0], position[1], position[2])
+export const Turtle = new StructType("Turtle", [
+    // new NativeFunction("Forward", async (interpreter, ctx, args) => {
+    //     await delay()
+    //     const oldPosition: [number, number, number] = ctx.getProtectedData("position");
+    //     const rotation = ctx.getProtectedData("rotation");
+    //     const position = [...oldPosition]
+    //     if (rotation % 4 == 0) position[0] += 1;
+    //     else if (rotation % 4 == 1) position[2] -= 1;
+    //     else if (rotation % 4 == 2) position[0] -= 1;
+    //     else if (rotation % 4 == 3) position[2] += 1;
+    //     const blockPos = new BlockLocation(position[0], position[1], position[2])
 
-        if (!overworld.getBlock(blockPos).canPlace(MinecraftBlockTypes.stone)) return [null, ctx]
+    //     if (!overworld.getBlock(blockPos).canPlace(MinecraftBlockTypes.stone)) return [null, ctx]
 
-        drawTurtle(oldPosition, position, rotation % 4, ctx);
-        ctx.setProtectedData("position", position);
+    //     drawTurtle(oldPosition, position, rotation % 4, ctx);
+    //     ctx.setProtectedData("position", position);
         
-        return [null, ctx];
-    }),
+    //     return [null, ctx];
+    // }),
 
-    new NativeFunction("TurnRight", async (interpreter, ctx, args) => {
-        await delay()
-        const position: [number, number, number] = ctx.getProtectedData("position");
-        var rotation: number = ctx.getProtectedData("rotation") - 1;
-        if (rotation > 3) rotation = 0;
-        if (rotation < 0) rotation = 3;
+    // new NativeFunction("TurnRight", async (interpreter, ctx, args) => {
+    //     await delay()
+    //     const position: [number, number, number] = ctx.getProtectedData("position");
+    //     var rotation: number = ctx.getProtectedData("rotation") - 1;
+    //     if (rotation > 3) rotation = 0;
+    //     if (rotation < 0) rotation = 3;
 
-        drawTurtle(position, position, rotation % 4, ctx);
-        ctx.setProtectedData("rotation", rotation);
+    //     drawTurtle(position, position, rotation % 4, ctx);
+    //     ctx.setProtectedData("rotation", rotation);
 
         
-        return [null, ctx];
-    }),
+    //     return [null, ctx];
+    // }),
 
-    new NativeFunction("TurnLeft", async (interpreter, ctx, args) => {
-        await delay()
-        const position: [number, number, number] = ctx.getProtectedData("position");
-        var rotation: number = ctx.getProtectedData("rotation") + 1;
-        if (rotation > 3) rotation = 0;
-        if (rotation < 0) rotation = 3;
+    // new NativeFunction("TurnLeft", async (interpreter, ctx, args) => {
+    //     await delay()
+    //     const position: [number, number, number] = ctx.getProtectedData("position");
+    //     var rotation: number = ctx.getProtectedData("rotation") + 1;
+    //     if (rotation > 3) rotation = 0;
+    //     if (rotation < 0) rotation = 3;
 
-        drawTurtle(position, position, rotation % 4, ctx);
-        ctx.setProtectedData("rotation", rotation);
+    //     drawTurtle(position, position, rotation % 4, ctx);
+    //     ctx.setProtectedData("rotation", rotation);
         
-        return [null, ctx];
-    }),
+    //     return [null, ctx];
+    // }),
 
-    new NativeFunction("Inspect", async (interpreter, ctx, args) => {
-        const [...position] = ctx.getProtectedData("position");
-        const rotation = ctx.getProtectedData("rotation");
+    // new NativeFunction("Inspect", async (interpreter, ctx, args) => {
+    //     const [...position] = ctx.getProtectedData("position");
+    //     const rotation = ctx.getProtectedData("rotation");
 
-        if (rotation % 4 == 0) position[0] += 1;
-        else if (rotation % 4 == 1) position[2] -= 1;
-        else if (rotation % 4 == 2) position[0] -= 1;
-        else if (rotation % 4 == 3) position[2] += 1;
-        const blockPos = new BlockLocation(position[0], position[1], position[2])
+    //     if (rotation % 4 == 0) position[0] += 1;
+    //     else if (rotation % 4 == 1) position[2] -= 1;
+    //     else if (rotation % 4 == 2) position[0] -= 1;
+    //     else if (rotation % 4 == 3) position[2] += 1;
+    //     const blockPos = new BlockLocation(position[0], position[1], position[2])
 
-        const blockId = overworld.getBlock(blockPos).typeId;
-        return interpreter.primitiveString({ value: `${blockId}` }, ctx)
-    }),
+    //     const blockId = overworld.getBlock(blockPos).typeId;
+    //     return interpreter.primitiveString({ value: `${blockId}` }, ctx)
+    // }),
 
-    new NativeFunction("InspectDown", async (interpreter, ctx, args) => {
-        const position: [number, number, number] = ctx.getProtectedData("position");
-        const blockLocation = new BlockLocation(position[0], position[1] - 1, position[2]);
+    // new NativeFunction("InspectDown", async (interpreter, ctx, args) => {
+    //     const position: [number, number, number] = ctx.getProtectedData("position");
+    //     const blockLocation = new BlockLocation(position[0], position[1] - 1, position[2]);
 
-        const blockId = overworld.getBlock(blockLocation).typeId;
-        return interpreter.primitiveString({ value: `${blockId}` }, ctx)
-    }),
+    //     const blockId = overworld.getBlock(blockLocation).typeId;
+    //     return interpreter.primitiveString({ value: `${blockId}` }, ctx)
+    // }),
 
-    new NativeFunction("InspectUp", async (interpreter, ctx, args) => {
-        const position: [number, number, number] = ctx.getProtectedData("position");
-        const blockLocation = new BlockLocation(position[0], position[1] + 1, position[2]);
+    // new NativeFunction("InspectUp", async (interpreter, ctx, args) => {
+    //     const position: [number, number, number] = ctx.getProtectedData("position");
+    //     const blockLocation = new BlockLocation(position[0], position[1] + 1, position[2]);
 
-        const blockId = overworld.getBlock(blockLocation).typeId;
-        return interpreter.primitiveString({ value: `${blockId}` }, ctx)
-    }),
+    //     const blockId = overworld.getBlock(blockLocation).typeId;
+    //     return interpreter.primitiveString({ value: `${blockId}` }, ctx)
+    // }),
 
-    new NativeFunction("Dig", async (interpreter, ctx, args) => {
-        const [...position] = ctx.getProtectedData("position");
-        const rotation = ctx.getProtectedData("rotation");
+    // new NativeFunction("Dig", async (interpreter, ctx, args) => {
+    //     const [...position] = ctx.getProtectedData("position");
+    //     const rotation = ctx.getProtectedData("rotation");
 
-        if (rotation % 4 == 0) position[0] += 1;
-        else if (rotation % 4 == 1) position[2] -= 1;
-        else if (rotation % 4 == 2) position[0] -= 1;
-        else if (rotation % 4 == 3) position[2] += 1;
-        const blockPos = new BlockLocation(position[0], position[1], position[2])
+    //     if (rotation % 4 == 0) position[0] += 1;
+    //     else if (rotation % 4 == 1) position[2] -= 1;
+    //     else if (rotation % 4 == 2) position[0] -= 1;
+    //     else if (rotation % 4 == 3) position[2] += 1;
+    //     const blockPos = new BlockLocation(position[0], position[1], position[2])
 
-        await delay()
-        await overworld.runCommandAsync(`setblock ${position[0]} ${position[1]} ${position[2]} air 0 destroy`)
-        const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
-        pickUpBlock(blockPos, inventory)
+    //     await delay()
+    //     await overworld.runCommandAsync(`setblock ${position[0]} ${position[1]} ${position[2]} air 0 destroy`)
+    //     const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
+    //     pickUpBlock(blockPos, inventory)
 
-        return [null, ctx]
-    }),
+    //     return [null, ctx]
+    // }),
 
-    new NativeFunction("DigUp", async (interpreter, ctx, args) => {
-        const [...position] = ctx.getProtectedData("position");
-        const blockPos = new BlockLocation(position[0], position[1] + 1, position[2])
+    // new NativeFunction("DigUp", async (interpreter, ctx, args) => {
+    //     const [...position] = ctx.getProtectedData("position");
+    //     const blockPos = new BlockLocation(position[0], position[1] + 1, position[2])
 
-        await delay()
-        await overworld.runCommandAsync(`setblock ${position[0]} ${position[1] + 1} ${position[2]} air 0 destroy`)
-        const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
-        pickUpBlock(blockPos, inventory)
+    //     await delay()
+    //     await overworld.runCommandAsync(`setblock ${position[0]} ${position[1] + 1} ${position[2]} air 0 destroy`)
+    //     const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
+    //     pickUpBlock(blockPos, inventory)
 
-        return [null, ctx]
-    }),
+    //     return [null, ctx]
+    // }),
 
-    new NativeFunction("DigDown", async (interpreter, ctx, args) => {
-        const [...position] = ctx.getProtectedData("position");
-        const blockPos = new BlockLocation(position[0], position[1] - 1, position[2])
+    // new NativeFunction("DigDown", async (interpreter, ctx, args) => {
+    //     const [...position] = ctx.getProtectedData("position");
+    //     const blockPos = new BlockLocation(position[0], position[1] - 1, position[2])
 
-        await delay()
-        await overworld.runCommandAsync(`setblock ${position[0]} ${position[1] - 1} ${position[2]} air 0 destroy`)
-        const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
-        pickUpBlock(blockPos, inventory)
+    //     await delay()
+    //     await overworld.runCommandAsync(`setblock ${position[0]} ${position[1] - 1} ${position[2]} air 0 destroy`)
+    //     const inventory = (ctx.getProtectedData("entity") as Entity).getComponent("minecraft:inventory") as EntityInventoryComponent;
+    //     pickUpBlock(blockPos, inventory)
 
-        return [null, ctx]
-    }),
+    //     return [null, ctx]
+    // }),
 ])

@@ -1,3 +1,4 @@
 [submodule "BP/scripts/cosmic"]
 	path = BP/scripts/cosmic
 	url = https://github.com/FrederoxDev/Cosmic.git
+	branch = RewriteV3

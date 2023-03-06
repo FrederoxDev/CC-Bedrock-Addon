@@ -131,7 +131,7 @@ export const makeFile = (dir: Directory, path: string[], fileName: string): Dire
 export const openFile = async(player: Player, fileName: string, content: string): Promise<string> => {
     const modal = new ModalFormData()
         .title(fileName)
-        .textField("Paste your file:", "", content);
+        .textField("Paste your file:", "", "");
 
     // @ts-ignore
     const res = await modal.show(player);
