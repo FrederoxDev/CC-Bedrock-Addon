@@ -7,6 +7,7 @@ import { NativeFunction } from "./cosmic/src/Struct/NativeFunction";
 import { StructInstance } from "./cosmic/src/Struct/StructInstance";
 import { Interpreter } from "./cosmic/src/Interpreter";
 import { Display } from "./structs/Display";
+import { PixelBuffer } from "./structs/PixelBuffer";
 
 export class TurtleInterpreter {
     turtleEntity: Entity;
@@ -35,6 +36,7 @@ export class TurtleInterpreter {
 
         const globals = new Context()
         globals.setSymbol("Display", Display)
+        globals.setSymbol("PixelBuffer", PixelBuffer)
 
         globals.setSymbol("log", new NativeFunction("log", async (interpreter, ctx, start, end, args) => {
             var args = args.map((arg: any) => {
