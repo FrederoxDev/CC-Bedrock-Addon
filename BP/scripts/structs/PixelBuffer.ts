@@ -113,7 +113,7 @@ export const PixelBuffer = new StructType("PixelBuffer", [
     }),
 
     new NativeFunction("DrawLine", async (interpreter, ctx, start, end, args) => {
-        const helper = new NativeFunctionHelper(interpreter, args, 4, start, end);
+        const helper = new NativeFunctionHelper(interpreter, args, 5, start, end);
         var selfRef = ctx.stack.pop() as StructInstance;
         var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
         var width = selfRef.selfCtx.getProtected<number>("bufferWidth");
@@ -167,7 +167,6 @@ export const PixelBuffer = new StructType("PixelBuffer", [
         const centerX = getNumberLiteral(helper.expectType(0, "Number"))
         const centerY = getNumberLiteral(helper.expectType(1, "Number"))
         const radius = getNumberLiteral(helper.expectType(2, "Number"))
-        console.warn(args[3])
         const shouldFill = !getBooleanLiteral(helper.expectType(3, "Boolean"))
         const color = getNumberLiteral(helper.expectType(4, "Number"))
 
