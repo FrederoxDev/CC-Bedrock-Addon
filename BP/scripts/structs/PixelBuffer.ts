@@ -1,5 +1,6 @@
 import { BlockLocation, CommandResult, world } from "@minecraft/server";
 import { Interpreter } from "../cosmic/src/Interpreter";
+import { getBooleanLiteral } from "../cosmic/src/Primitives/Boolean";
 import { getNumberLiteral } from "../cosmic/src/Primitives/Number";
 import { getStringLiteral } from "../cosmic/src/Primitives/String";
 import { NativeFunction } from "../cosmic/src/Struct/NativeFunction";
@@ -18,6 +19,10 @@ const validatePointOnScreen = (x: number, y: number, width: number, height: numb
     }
 
     return [x, y];
+}
+
+const isPointOnScreen = (x: number, y: number, width: number, height: number) => {
+    return !(x < 0 || x >= width || y < 0 || y >= width)
 }
 
 const fontPoints = {
@@ -108,7 +113,7 @@ export const PixelBuffer = new StructType("PixelBuffer", [
     }),
 
     new NativeFunction("DrawLine", async (interpreter, ctx, start, end, args) => {
-        const helper = new NativeFunctionHelper(interpreter, args, 5, start, end);
+        const helper = new NativeFunctionHelper(interpreter, args, 4, start, end);
         var selfRef = ctx.stack.pop() as StructInstance;
         var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
         var width = selfRef.selfCtx.getProtected<number>("bufferWidth");
@@ -150,6 +155,35 @@ export const PixelBuffer = new StructType("PixelBuffer", [
         screenBuffer[y * width + x] = color;
         selfRef.selfCtx.setProtected("pixelBuffer", screenBuffer)
         return [null, ctx]
+    }),
+
+    new NativeFunction("DrawCircle", async (interpreter, ctx, start, end, args) => {
+        const helper = new NativeFunctionHelper(interpreter, args, 5, start, end);
+        var selfRef = ctx.stack.pop() as StructInstance;
+        var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
+        var bufferWidth = selfRef.selfCtx.getProtected<number>("bufferWidth");
+        var bufferHeight = selfRef.selfCtx.getProtected<number>("bufferHeight");
+
+        const centerX = getNumberLiteral(helper.expectType(0, "Number"))
+        const centerY = getNumberLiteral(helper.expectType(1, "Number"))
+        const radius = getNumberLiteral(helper.expectType(2, "Number"))
+        console.warn(args[3])
+        const shouldFill = !getBooleanLiteral(helper.expectType(3, "Boolean"))
+        const color = getNumberLiteral(helper.expectType(4, "Number"))
+
+        for (var xOff = -radius; xOff <= radius; xOff++) {
+            for (var yOff = -radius; yOff <= radius; yOff++) {
+                var x = centerX + xOff;
+                var y = centerY + yOff;
+                if (!isPointOnScreen(x, y, bufferWidth, bufferHeight)) continue;
+                const c = Math.sqrt(xOff * xOff + yOff * yOff)
+                if (c > radius || (c < radius - 1 && shouldFill)) continue;
+
+                screenBuffer[y * bufferWidth + x] = color;
+            }
+        }
+
+        return [null, ctx];
     }),
 
     new NativeFunction("DrawText", async (interpreter, ctx, start, end, args) => {

@@ -7,18 +7,6 @@ import { StructInstance } from "../cosmic/src/Struct/StructInstance";
 import { StructType } from "../cosmic/src/Struct/StructType";
 console.log = console.warn
 
-const validatePointOnScreen = (x: number, y: number, interpreter: Interpreter, start: number, end: number) => {
-    if (x < 0 || x > 15 || y < 0 || y > 15) {
-        throw interpreter.runtimeErrorCode(
-            `Pixel (${x}, ${y}) is outside of the pixel display!`,
-            start,
-            end
-        )
-    }
-
-    return [x, y];
-}
-
 export const Display: StructType = new StructType("Display", [
     new NativeFunction("Connect", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 5, start, end);
@@ -97,8 +85,6 @@ export const Display: StructType = new StructType("Display", [
 
         await Promise.all(promises)
         promises = [];
-
-        world.say("Finished Drawing!")
         return [null, ctx];
     })
 ]);
