@@ -6,7 +6,7 @@ hero:
   text: Robots, Computers and more!
   tagline: All built from scratch
   image:
-    src: images/pack_icon.png
+    src: /pack_icon.png
     alt: Pack Icon
   actions:
     - theme: brand
