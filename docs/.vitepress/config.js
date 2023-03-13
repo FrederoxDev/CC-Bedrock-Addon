@@ -2,10 +2,10 @@ export default {
     title: 'CC: Bedrock',
     base: '/CC-Bedrock/',
     head: [
-        ['link', { rel: 'icon', href: '.vitepress/images/pack_icon.png' }]
+        ['link', { rel: 'icon', href: 'images/pack_icon.png' }]
     ],
     themeConfig: {
-        logo: ".vitepress/images/pack_icon.png",
+        logo: "images/pack_icon.png",
         sidebar: [
             {
                 text: "About",
