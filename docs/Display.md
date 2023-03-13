@@ -1,13 +1,13 @@
 # Display
 
-## Constructors
+## Static Methods
 
 ### Connect
 Returns an instance of a display at a specific position
 - Parameters: `x: Number, y: Number, z: Number, width: Number, height: Number`
 - Returns: `Display`
 
-## Methods
+## Instance Methods
 
 ### DrawBuffer
 Draws a [PixelBuffer](PixelBuffer.md) to the screen

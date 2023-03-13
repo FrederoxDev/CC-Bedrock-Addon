@@ -8,6 +8,8 @@ import { StructInstance } from "./cosmic/src/Struct/StructInstance";
 import { Interpreter } from "./cosmic/src/Interpreter";
 import { Display } from "./structs/Display";
 import { PixelBuffer } from "./structs/PixelBuffer";
+import { Thread } from "./structs/Thread";
+import { MathStruct } from "./structs/Math";
 
 export class TurtleInterpreter {
     turtleEntity: Entity;
@@ -37,6 +39,8 @@ export class TurtleInterpreter {
         const globals = new Context()
         globals.setSymbol("Display", Display)
         globals.setSymbol("PixelBuffer", PixelBuffer)
+        globals.setSymbol("Thread", Thread)
+        globals.setSymbol("Math", MathStruct)
 
         globals.setSymbol("log", new NativeFunction("log", async (interpreter, ctx, start, end, args) => {
             var args = args.map((arg: any) => {
@@ -49,7 +53,11 @@ export class TurtleInterpreter {
             return [null, ctx];
         }))
 
-
-        new Interpreter(input).findTraverseFunc(ast, globals)
+        try {
+            new Interpreter(input).findTraverseFunc(ast, globals)
+        }
+        catch (e) {
+            throw e;
+        }
     }
 }

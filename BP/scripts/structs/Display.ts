@@ -29,7 +29,7 @@ export const Display: StructType = new StructType("Display", [
         const pixelBuffer = buffer.selfCtx.getProtected<number[]>("pixelBuffer");
         const bufferWidth = buffer.selfCtx.getProtected<number>("bufferWidth");
         const bufferHeight = buffer.selfCtx.getProtected<number>("bufferHeight");
-        var selfRef = ctx.stack.pop() as StructInstance;
+        var selfRef = ctx.stack.pop().node as StructInstance;
 
         const position = selfRef.selfCtx.getProtected<[number, number, number]>("screenPosition");
         const [width, height] = selfRef.selfCtx.getProtected<[number, number]>("screenSize");

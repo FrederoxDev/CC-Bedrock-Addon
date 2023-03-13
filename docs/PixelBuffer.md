@@ -1,6 +1,6 @@
 # Pixel Buffer
 
-## Constructors
+## Static Methods
 
 ### New
 Returns an instance of a pixel buffer
@@ -9,7 +9,7 @@ Returns an instance of a pixel buffer
 - Throws: `Width and Height must be divisible by 16`
 - Returns: `PixelBuffer`
 
-## Methods
+## Instance Methods
 
 ### DrawPixel
 Sets a single pixel on screen

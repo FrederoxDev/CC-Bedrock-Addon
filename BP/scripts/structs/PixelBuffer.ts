@@ -93,10 +93,12 @@ export const PixelBuffer = new StructType("PixelBuffer", [
     }),
 
     new NativeFunction("DrawPixel", async (interpreter, ctx, start, end, args) => {
+        try {
         const helper = new NativeFunctionHelper(interpreter, args, 3, start, end);
-        var selfRef = ctx.stack.pop() as StructInstance;
+        var selfRef = ctx.stack.pop().node as StructInstance;
         var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
         var bufferWidth = selfRef.selfCtx.getProtected<number>("bufferWidth")
+
 
         const [x, y] = validatePointOnScreen(
             getNumberLiteral(helper.expectType(0, "Number")),
@@ -110,11 +112,16 @@ export const PixelBuffer = new StructType("PixelBuffer", [
         screenBuffer[y * bufferWidth + x] = color;
         selfRef.selfCtx.setProtected("pixelBuffer", screenBuffer)
         return [null, ctx]
+        }
+        catch (e) {
+            console.warn(e)
+            throw e;
+        }
     }),
 
     new NativeFunction("DrawLine", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 5, start, end);
-        var selfRef = ctx.stack.pop() as StructInstance;
+        var selfRef = ctx.stack.pop().node as StructInstance;
         var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
         var width = selfRef.selfCtx.getProtected<number>("bufferWidth");
         var height = selfRef.selfCtx.getProtected<number>("bufferHeight");
@@ -159,7 +166,7 @@ export const PixelBuffer = new StructType("PixelBuffer", [
 
     new NativeFunction("DrawCircle", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 5, start, end);
-        var selfRef = ctx.stack.pop() as StructInstance;
+        var selfRef = ctx.stack.pop().node as StructInstance;
         var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
         var bufferWidth = selfRef.selfCtx.getProtected<number>("bufferWidth");
         var bufferHeight = selfRef.selfCtx.getProtected<number>("bufferHeight");
@@ -187,7 +194,7 @@ export const PixelBuffer = new StructType("PixelBuffer", [
 
     new NativeFunction("DrawText", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 1, start, end);
-        var selfRef = ctx.stack.pop() as StructInstance;
+        var selfRef = ctx.stack.pop().node as StructInstance;
         var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
         var bufferWidth = selfRef.selfCtx.getProtected<number>("bufferWidth");
         var bufferHeight = selfRef.selfCtx.getProtected<number>("bufferHeight");
