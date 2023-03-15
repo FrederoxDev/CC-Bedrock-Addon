@@ -14,10 +14,16 @@ export default {
             {
                 text: "Structs",
                 items: [
-                    { text: 'Math', link: '/Math' },
-                    { text: 'Thread', link: '/Thread' },
-                    { text: 'PixelBuffer', link: '/PixelBuffer' },
-                    { text: 'Display', link: '/Display' },
+                    { text: 'Math', link: 'Structs/Math' },
+                    { text: 'Thread', link: 'Structs/Thread' },
+                    { text: 'PixelBuffer', link: 'Structs/PixelBuffer' },
+                    { text: 'Display', link: 'Structs/Display' },
+                ]
+            },
+            {
+                text: "Enums",
+                items: [
+                    { text: "Color", link: "Enums/Color" }
                 ]
             }
         ]

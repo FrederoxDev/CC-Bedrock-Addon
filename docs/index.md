@@ -11,7 +11,7 @@ hero:
   actions:
     - theme: brand
       text: Structs
-      link: /Display
+      link: Structs/Display
     - theme: alt
       text: View on GitHub
       link: https://github.com/frederoxDev/CC-Bedrock

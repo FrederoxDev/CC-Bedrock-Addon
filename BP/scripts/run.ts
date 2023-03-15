@@ -10,6 +10,7 @@ import { Display } from "./structs/Display";
 import { PixelBuffer } from "./structs/PixelBuffer";
 import { Thread } from "./structs/Thread";
 import { MathStruct } from "./structs/Math";
+import { Color } from "./enums/Color";
 
 export class TurtleInterpreter {
     turtleEntity: Entity;
@@ -41,6 +42,7 @@ export class TurtleInterpreter {
         globals.setSymbol("PixelBuffer", PixelBuffer)
         globals.setSymbol("Thread", Thread)
         globals.setSymbol("Math", MathStruct)
+        globals.setSymbol("Color", Color)
 
         globals.setSymbol("log", new NativeFunction("log", async (interpreter, ctx, start, end, args) => {
             var args = args.map((arg: any) => {

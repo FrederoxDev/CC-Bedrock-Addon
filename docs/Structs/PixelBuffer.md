@@ -13,19 +13,19 @@ Returns an instance of a pixel buffer
 
 ### DrawPixel
 Sets a single pixel on screen
-- Parameters: `x: Number, y: Number, color: Number`
+- Parameters: `x: Number, y: Number, color: Color`
 - Throws: `Will throw if point is not in screen bounds`
 - Returns: `void`
 
 ### DrawLine
 Draws a line between two points
-- Parameters: `x1: Number, y1: Number, x2: Number, y2: Number, color: Number`
+- Parameters: `x1: Number, y1: Number, x2: Number, y2: Number, color: Color`
 - Throws: `Will throw if points are not in screen bounds`
 - Returns: `void`
 
 ### DrawCircle
 Draws a circle at a point
-- Parameters: `x: Number, y: Number, radius: Number, fill: Boolean, color: Number`
+- Parameters: `x: Number, y: Number, radius: Number, fill: Boolean, color: Color`
 - Returns: `void`
 
 ### DrawText
