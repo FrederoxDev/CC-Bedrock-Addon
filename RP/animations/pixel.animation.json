@@ -3,14 +3,14 @@
 	"animations": {
 		"animation.pixel.position": {
 			"loop": true,
-			"animation_length": 0.0,
+			"animation_length": 2.58333,
 			"bones": {
-				"main": {
-					"position": [
-						"query.property('coslang:x')",
-						"query.property('coslang:y')",
-						0
-					]
+				"pos_bone": {
+					"position": ["query.property('coslang:x')", "query.property('coslang:y')", 0]
+				},
+				"size_bone": {
+					"position": ["query.property('coslang:x_size')/2", "query.property('coslang:y_size')/2", 0],
+					"scale": ["query.property('coslang:x_size')", "query.property('coslang:y_size')", 1]
 				}
 			}
 		}

@@ -16,6 +16,15 @@ const pixel = {
 					"default": 0,
 					"type": "int"
 				},
+				"coslang:x_size": {
+					"range": [
+						1,
+						16
+					],
+					"client_sync": true,
+					"default": 1,
+					"type": "int"
+				},
 				"coslang:y": {
 					"range": [
 						0,
@@ -23,6 +32,15 @@ const pixel = {
 					],
 					"client_sync": true,
 					"default": 0,
+					"type": "int"
+				},
+				"coslang:y_size": {
+					"range": [
+						1,
+						16
+					],
+					"client_sync": true,
+					"default": 1,
 					"type": "int"
 				},
 				"coslang:color": {
@@ -48,6 +66,14 @@ for (var x = 0; x < 16; x++) {
 	for (var y = 0; y < 16; y++) {
 		pixel["minecraft:entity"].events[`coslang:set_${x}_${y}`] = {
 			"set_property": { "coslang:x": x, "coslang:y": y }
+		}
+	}
+}
+
+for (var x = 1; x < 17; x++) {
+	for (var y = 1; y < 17; y++) {
+		pixel["minecraft:entity"].events[`coslang:size_${x}_${y}`] = {
+			"set_property": { "coslang:x_size": x, "coslang:y_size": y }
 		}
 	}
 }

@@ -6,6 +6,12 @@ export const OnTurtlePlace = (e: BlockPlaceEvent) => {
     const controller = e.dimension.spawnEntity("coslang:turtle_controller", e.block.location);
     const nextId = (world.getDynamicProperty(nextTurtleIdProp) as number) ?? 0;
     controller.setDynamicProperty(turtleIdProp, nextId + 1);
+    const midPos = {
+        x: e.block.location.x + 0.5,
+        y: e.block.location.y,
+        z: e.block.location.z + 0.5
+    }
+    controller.teleport(midPos, controller.dimension, 0, 0, false)
     world.setDynamicProperty(nextTurtleIdProp, nextId + 1);
     controller.nameTag = `Turtle: ${nextId + 1}`;
 }

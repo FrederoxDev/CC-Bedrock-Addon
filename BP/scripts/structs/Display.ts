@@ -1,4 +1,4 @@
-import { CommandResult, Vector3, world } from "@minecraft/server";
+import { CommandResult, Entity, Vector3, world } from "@minecraft/server";
 import { Interpreter } from "../cosmic/src/Interpreter";
 import { getNumberLiteral } from "../cosmic/src/Primitives/Number";
 import { NativeFunction } from "../cosmic/src/Struct/NativeFunction";
@@ -7,14 +7,21 @@ import { StructInstance } from "../cosmic/src/Struct/StructInstance";
 import { StructType } from "../cosmic/src/Struct/StructType";
 console.log = console.warn
 
-const generateLargeDisplayCommands = (pixelBuffer: number[], origin: Vector3, screenWidth: number, screenHeight: number): string[] => {
-    const commands: string[] = [];
+interface PixelData {
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color: number
+}
+
+const generateLargeDisplayCommands = (pixelBuffer: number[], origin: Vector3, screenWidth: number, screenHeight: number): PixelData[] => {
+    const commands: PixelData[] = [];
 
     for (var screenXOffset = 0; screenXOffset < screenWidth; screenXOffset++) {
         for (var screenYOffset = 0; screenYOffset < screenHeight; screenYOffset++) {
-            const pos = {x: origin.x + screenXOffset, y: origin.y + screenYOffset, z: origin.z};
+            const pos = { x: origin.x + screenXOffset, y: origin.y + screenYOffset, z: origin.z };
             const screenBuffer: number[] = []
-            world.sendMessage(`${screenXOffset}, ${screenYOffset}`)
 
             // Create a smaller buffer which is 16x16 for that specific screen
             for (var i = 0; i < 256; i++) {
@@ -30,43 +37,38 @@ const generateLargeDisplayCommands = (pixelBuffer: number[], origin: Vector3, sc
     return commands;
 }
 
-const generateDisplayCommands = (pixelBuffer: number[], pos: Vector3): string[] => {
-    const commands = [];
+const generateDisplayCommands = (pixelBuffer: number[], pos: Vector3): PixelData[] => {
+    const commands: PixelData[] = [];
     var hasDrawn = new Array(256).fill(false);
 
     const getIdx = (x: number, y: number) => {
         return y * 16 + x;
     }
 
-    world.sendMessage("Egg")
-
     for (var x = 0; x < 16; x++) {
         for (var y = 0; y < 16; y++) {
             const idx = getIdx(x, y);
-            if (pixelBuffer[idx] == -1) continue; 
+            if (pixelBuffer[idx] == -1) continue;
             if (hasDrawn[idx]) continue;
 
             var expandY = 0;
-            while (y + expandY + 1 < 16 && pixelBuffer[getIdx(x, expandY + 1)] === pixelBuffer[idx]) expandY++; 
-            
+            while (y + expandY + 1 < 16 && pixelBuffer[getIdx(x, expandY + 1)] === pixelBuffer[idx]) expandY++;
+
             var expandX = 0;
-            var tryExpandX = true;
 
-            xLoop: while (x + expandX + 1 < 16 && tryExpandX) {
-                var tryX = expandX + 1;
-                for (var testY = y; y <= expandY; y++) {
-                    if (pixelBuffer[getIdx(tryX, testY)] !== pixelBuffer[idx]) break xLoop;
-                }
-                expandX++;
-            }
-
-            for (var setX = x; setX <= expandX; setX++) {
-                for (var setY = y; setY <= expandY; setY++) {
+            for (var setX = x; setX <= x + expandX; setX++) {
+                for (var setY = y; setY <= y + expandY; setY++) {
                     hasDrawn[getIdx(setX, setY)] = true;
                 }
             }
 
-            world.sendMessage(`${x} + ${expandX}, ${y} + ${expandY} = ${pixelBuffer[idx]}`)
+            commands.push({
+                x,
+                y,
+                width: 1 + expandX,
+                height: 1 + expandY,
+                color: pixelBuffer[idx]
+            });
         }
     }
 
@@ -99,7 +101,7 @@ export const Display: StructType = new StructType("Display", [
 
         const position = selfRef.selfCtx.getProtected<[number, number, number]>("screenPosition");
         const [width, height] = selfRef.selfCtx.getProtected<[number, number]>("screenSize");
-        const blockLocation = {x: position[0], y: position[1], z: position[2]}
+        const blockLocation = { x: position[0], y: position[1], z: position[2] }
 
         if (width * 16 != bufferWidth || height * 16 != bufferHeight) throw interpreter.runtimeErrorCode(
             `Incorrect size for buffer expected (${width * 16} x ${height * 16}), instead got (${bufferWidth} x ${bufferHeight})`,
@@ -110,7 +112,7 @@ export const Display: StructType = new StructType("Display", [
 
         for (var screenX = 0; screenX < width; screenX++) {
             for (var screenY = 0; screenY < height; screenY++) {
-                const screenLoc = {x: blockLocation.x + screenX, y: blockLocation.y + screenY, z: blockLocation.z}
+                const screenLoc = { x: blockLocation.x + screenX, y: blockLocation.y + screenY, z: blockLocation.z }
                 overworld.getEntitiesAtBlockLocation(screenLoc)
                     .filter(e => e.typeId == "coslang:pixel")
                     .forEach(e => e.kill());
@@ -120,37 +122,55 @@ export const Display: StructType = new StructType("Display", [
         // Draw the screen buffer
         var promises: Promise<CommandResult>[] = [];
 
-        const res = generateLargeDisplayCommands(pixelBuffer, blockLocation, width, height)
-        world.sendMessage(res.toString())
+        const pixels = generateLargeDisplayCommands(pixelBuffer, blockLocation, width, height)
+        const pixelEntities: Entity[] = []
+        world.sendMessage(`Generated screen using ${pixels.length} pixels`)
+        world.sendMessage(JSON.stringify(pixels))
 
-        for (var screenX = 0; screenX < width; screenX++) {
-            for (var screenY = 0; screenY < height; screenY++) {
-                const screenLoc = {x: blockLocation.x + screenX, y: blockLocation.y + screenY, z: blockLocation.z}
+        for (var i = 0; i < pixels.length; i++) {
+            const pixel = pixels[i];
+            const blockCorner = {x: blockLocation.x + 0.5, y: blockLocation.y, z: blockLocation.z + 0.5}
+            const pixelEntity = overworld.spawnEntity(`coslang:pixel<coslang:set_${pixel.x}_${pixel.y}>`, blockCorner);
 
-                for (var i = 0; i < 256; i++) {
-                    const localX = i % 16;
-                    const localY = Math.floor(i / 16);
-                    const x = (screenX * 16) + localX;
-                    const y = (screenY * 16) + localY;
-                    const idx = y * bufferWidth + x;
-
-                    if (pixelBuffer[idx] == -1) continue;
-
-                    // Only run 32 commands at once to prevent going over command limit
-                    if (promises.length > 32) {
-                        await Promise.all(promises)
-                        promises = [];
-                    }
-
-                    const pixel = world.getDimension("overworld").spawnEntity("coslang:pixel", screenLoc)
-
-                    promises.push(pixel.runCommandAsync(`event entity @s coslang:set_${localX}_${localY}`));
-                    // Dont set the color of white pixels
-                    if (pixelBuffer[idx] != 0)
-                        promises.push(pixel.runCommandAsync(`event entity @s coslang:set_color_${pixelBuffer[idx]}`))
-                }
+            if (pixel.color != 0) {
+                pixelEntity.triggerEvent(`coslang:set_color_${pixel.color}`)
             }
+
+            if (pixel.width != 0 && pixel.height != 0) {
+                pixelEntity.triggerEvent(`coslang:size_${pixel.width}_${pixel.height}`)
+            }
+
+            pixelEntities.push(pixelEntity);
         }
+
+        // for (var screenX = 0; screenX < width; screenX++) {
+        //     for (var screenY = 0; screenY < height; screenY++) {
+        //         const screenLoc = {x: blockLocation.x + screenX, y: blockLocation.y + screenY, z: blockLocation.z}
+
+        //         for (var i = 0; i < 256; i++) {
+        //             const localX = i % 16;
+        //             const localY = Math.floor(i / 16);
+        //             const x = (screenX * 16) + localX;
+        //             const y = (screenY * 16) + localY;
+        //             const idx = y * bufferWidth + x;
+
+        //             if (pixelBuffer[idx] == -1) continue;
+
+        //             // Only run 32 commands at once to prevent going over command limit
+        //             if (promises.length > 32) {
+        //                 await Promise.all(promises)
+        //                 promises = [];
+        //             }
+
+        //             const pixel = world.getDimension("overworld")
+        //                 .spawnEntity(`coslang:pixel<coslang:set_${localX}_${localY}>`, screenLoc)
+
+        //             // Dont set the color of white pixels
+        //             if (pixelBuffer[idx] != 0)
+        //                 promises.push(pixel.runCommandAsync(`event entity @s coslang:set_color_${pixelBuffer[idx]}`))
+        //         }
+        //     }
+        // }
 
         await Promise.all(promises)
         promises = [];
