@@ -1,4 +1,4 @@
-import { BlockLocation, CommandResult, world } from "@minecraft/server";
+import { CommandResult, world } from "@minecraft/server";
 import { Interpreter } from "../cosmic/src/Interpreter";
 import { getBooleanLiteral } from "../cosmic/src/Primitives/Boolean";
 import { getNumberLiteral } from "../cosmic/src/Primitives/Number";
@@ -93,7 +93,6 @@ export const PixelBuffer = new StructType("PixelBuffer", [
     }),
 
     new NativeFunction("DrawPixel", async (interpreter, ctx, start, end, args) => {
-        try {
         const helper = new NativeFunctionHelper(interpreter, args, 3, start, end);
         var selfRef = ctx.stack.pop().node as StructInstance;
         var screenBuffer = selfRef.selfCtx.getProtected<number[]>("pixelBuffer");
@@ -112,11 +111,6 @@ export const PixelBuffer = new StructType("PixelBuffer", [
         screenBuffer[y * bufferWidth + x] = color;
         selfRef.selfCtx.setProtected("pixelBuffer", screenBuffer)
         return [null, ctx]
-        }
-        catch (e) {
-            console.warn(e)
-            throw e;
-        }
     }),
 
     new NativeFunction("DrawLine", async (interpreter, ctx, start, end, args) => {

@@ -11,6 +11,17 @@ import { Thread } from "./structs/Thread";
 import { MathStruct } from "./structs/Math";
 import { Color } from "./enums/Color";
 
+const logError = (code: string, message: string, startIdx: number, endIdx: number) => {
+    const lineStart = code.lastIndexOf("\n", startIdx) + 1;
+    const line = code.substring(lineStart, endIdx);
+    const lineNum = code.substring(0, startIdx).split("\n").length;
+    const colNum = startIdx - lineStart + 1;
+
+    world.sendMessage(`\n${lineNum} | ` + line);
+    world.sendMessage(`${" ".repeat(lineNum.toString().length + 3)}` + "§4" + `${" ".repeat(startIdx - lineStart)}${"^".repeat(endIdx - startIdx)}`);
+    world.sendMessage(message + `\n§7  at line: ${lineNum}, column: ${colNum}`)
+}
+
 export class TurtleInterpreter {
     turtleEntity: Entity;
 
@@ -19,21 +30,20 @@ export class TurtleInterpreter {
     }
 
     runScript = async (input: string) => {
-        // const floorX = Math.floor(this.turtleEntity.location.x)
-        // const floorY = Math.floor(this.turtleEntity.location.y)
-        // const floorZ = Math.floor(this.turtleEntity.location.z)
-        // world.say(turtleCtx.getProtectedData("position").toString())
-        // globals.setProtectedData("position", [floorX, floorY, floorZ]);
-        // globals.setProtectedData("rotation", 0);
-        // globals.setProtectedData("entity", this.turtleEntity);
-
-        // Execute the file
         const tokens = Tokenize(input)
-        const [ast, parseError] = new Parser(tokens, input).parse();
+        if (!Array.isArray(tokens)) {
+            logError(input, `${tokens.type}: ${tokens.message}`, tokens.start, tokens.end);
+            return;
+        }
 
-        if (parseError) {
-            world.say(parseError.message)
-            return parseError;
+        const parser = new Parser(tokens, input);
+        const [ast, parseError]: any = parser.parse();
+        // world.sendMessage(`${ast} ${parseError}`)
+
+        if (parseError !== null) {
+            world.sendMessage("Parse Error")
+            logError(input, parser.errMessage, parser.errStart, parser.errEnd);
+            return;
         }
 
         const globals = new Context()
@@ -49,16 +59,22 @@ export class TurtleInterpreter {
                     return arg.selfCtx.getProtected("value")
                 } else throw new Error("Cannot log")
             })
-            world.say("> " + args.join(" "))
+            world.sendMessage("> " + args.join(" "))
 
             return [null, ctx];
         }))
 
+        const interpreter = new Interpreter(input)
+
         try {
-            new Interpreter(input).findTraverseFunc(ast, globals)
+            await interpreter.findTraverseFunc(ast, globals)
+            world.sendMessage("Finished executing, with 0 errors!")
         }
         catch (e) {
-            throw e;
+            if (interpreter.errMessage === "") {
+                world.sendMessage(`${e}, ${e.stack}`)
+            }
+            else logError(input, interpreter.errMessage, interpreter.errStart, interpreter.errEnd)
         }
     }
 }
