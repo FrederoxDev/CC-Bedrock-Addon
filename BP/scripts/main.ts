@@ -1,85 +1,28 @@
-import { TurtleInterpreter } from "./run";
-import { world, system, MinecraftEntityTypes, DynamicPropertiesDefinition, EntityTypes, Player, Entity, EntityInventoryComponent, Block, BlockLocation, BlockPermutation } from "@minecraft/server"
-import { ModalFormData } from "@minecraft/server-ui"
-import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError } from "./FileSystem";
+// import { TurtleInterpreter } from "./run";
+import { world, Entity, EntityInventoryComponent, BeforeChatEvent, Player } from "@minecraft/server"
+import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError, deleteDirectory, deleteFile } from "./FileSystem";
+import { OnTurtleBreak, OnTurtleInteract, OnTurtlePlace } from "./Turtles";
+import { connectedTurtleProp, InitializeProperties, turtleFilesProp, turtleIdProp } from "./Properties";
+import { ModalFormData, ModalFormResponse, ActionFormData } from "@minecraft/server-ui";
 
-// Reassign .log because it does not exist in public
-console.log = console.warn;
+world.events.worldInitialize.subscribe(InitializeProperties);
+world.events.blockPlace.subscribe(OnTurtlePlace);
+world.events.blockBreak.subscribe(OnTurtleBreak);
+world.events.itemUseOn.subscribe(OnTurtleInteract);
 
-// Player Properties
-const connectedTurtleProp = "connectedTurtle";
-
-// Turtle Properties
-const turtleFilesProp = "turtleFiles";
-const turtleIdProp = "turtleId";
-
-// World Properties
-const nextTurtleIdProp = "nextTurtleId";
-
-// Property registration
-world.events.worldInitialize.subscribe(({ propertyRegistry }) => {
-    const playerType = MinecraftEntityTypes.player
-    const playerData = new DynamicPropertiesDefinition();
-    playerData.defineNumber(connectedTurtleProp);
-    propertyRegistry.registerEntityTypeDynamicProperties(playerData, playerType);
-
-    const turtleType = EntityTypes.get("coslang:turtle_controller");
-    const turtleData = new DynamicPropertiesDefinition();
-    turtleData.defineString(turtleFilesProp, 4294967295);
-    turtleData.defineNumber(turtleIdProp);
-    propertyRegistry.registerEntityTypeDynamicProperties(turtleData, turtleType);
-
-    const worldData = new DynamicPropertiesDefinition();
-    worldData.defineNumber(nextTurtleIdProp);
-    propertyRegistry.registerWorldDynamicProperties(worldData);
-})
-
-// When a new turtle is placed in the world it needs to be assigned an
-// turtleId, as well as base files. This is stored in coslang:turtle_controller
-world.events.blockPlace.subscribe(e => {
-    if (e.block.typeId !== "coslang:turtle") return;
-    const controller = e.dimension.spawnEntity("coslang:turtle_controller", e.block.location);
-    const nextId = (world.getDynamicProperty(nextTurtleIdProp) as number) ?? 0;
-    controller.setDynamicProperty(turtleIdProp, nextId + 1);
-    world.setDynamicProperty(nextTurtleIdProp, nextId + 1);
-    controller.nameTag = `Turtle: ${nextId + 1}`;
-})
-
-// When a turtle is broken in the world, need to kill the coslang:turtle_controller
-world.events.blockBreak.subscribe(e => {
-    if (e.brokenBlockPermutation.type.id !== "coslang:turtle") return;
-    const turtles = e.dimension.getEntitiesAtBlockLocation(e.block.location)
-        .filter(entity => entity.typeId == "coslang:turtle_controller");
-
-    turtles.map(turtle => turtle.kill())
-})
-
-// When a turtle is clicked on the player should get a reference to the entity
-world.events.itemUseOn.subscribe(e => {
-    const dimension = e.source.dimension
-    const block = dimension.getBlock(e.blockLocation);
-    if (block.typeId != "coslang:turtle") return;
-
-    const turtles = dimension.getEntitiesAtBlockLocation(e.blockLocation)
-        .filter(entity => entity.typeId == "coslang:turtle_controller");
-
-    if (turtles.length < 1) return console.log("Unable to find turtle controller!");
-    if (turtles.length > 1) return console.log("Multiple turtle controllers found!");
-
-    const turtle = turtles[0];
-    const turtleID = turtle.getDynamicProperty(turtleIdProp) as number
-    e.source.setDynamicProperty(connectedTurtleProp, turtleID!);
-    world.say(`Turtle ${turtleID} is now connected!`)
-})
-
-var currentPath: string[] = []
+var currentPath: string[] = [];
 
 // Command line
 world.events.beforeChat.subscribe(async e => {
+    try {
     if (!e.message.startsWith(">")) return;
     const message = e.message.substring(1).trimStart();
     const [command, ...rest] = message.split(" ");
     const turtleId = (e.sender.getDynamicProperty(connectedTurtleProp) as string | undefined);
+    if (turtleId === undefined) {
+        world.sendMessage("[No Turtle Connected]")
+        return;
+    }
     const allTurtles = Array.from(e.sender.dimension.getEntities({ type: "coslang:turtle_controller" }))
 
     var turtle: Entity | null = null;
@@ -91,7 +34,7 @@ world.events.beforeChat.subscribe(async e => {
     }
 
     if (turtle == null) {
-        world.say("Turtle with ID " + turtleId + " not found!")
+        world.sendMessage("Turtle with ID " + turtleId + " not found!")
         return;
     }
 
@@ -99,26 +42,26 @@ world.events.beforeChat.subscribe(async e => {
     const turtleString: string | undefined = allTurtles[i].getDynamicProperty(turtleFilesProp) as string | undefined
     const turtleFiles: Directory = turtleString == undefined ? emptyFS : JSON.parse(turtleString);
 
-    e.targets = [e.sender]
+    e.cancel = true;
 
     // Check the player is connected to a turtle
     if (turtleId === undefined) {
-        e.message = "[No Turtle Connected]"
+        world.sendMessage("[No Turtle Connected]");
         return;
     }
 
     // Tree command
-    if (command == "tree") {
+    else if (command == "tree") {
         const resolved = resolveDirectory(turtleFiles, currentPath)
         if (resolved.type == "FileError") {
-            e.message = resolved.error;
+            world.sendMessage(resolved.error);
             return;
         }
-        e.message = directoryTree(resolved);
+        world.sendMessage(directoryTree(resolved));
     }
 
     // Changing directories with relative paths
-    if (command == "cd") {
+    else if (command == "cd") {
         const relative = rest[0].split("/")
         const newPath = currentPath
 
@@ -129,95 +72,105 @@ world.events.beforeChat.subscribe(async e => {
 
         const dir = resolveDirectory(turtleFiles, newPath);
         if (dir.type == "FileError") {
-            e.message = `Error: ${dir.error}`
+            world.sendMessage(`Error: ${dir.error}`)
             return;
         }
 
         currentPath = newPath;
-        e.message = `§7/${newPath.join("/")}>§r`
+        world.sendMessage(`§7/${newPath.join("/")}>§r`)
     }
 
     // Make directories
-    if (command == "mkdir") {
+    else if (command == "mkdir") {
         const name = rest[0];
         const newFiles = makeDirectory(turtleFiles, currentPath, name);
         if (newFiles.type == "FileError") {
-            e.message = `Error: ${newFiles.error}`
+            world.sendMessage(`Error: ${newFiles.error}`);
             return;
         }
         turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
-        e.message = `§7/${currentPath.join("/")}>`;
+        world.sendMessage(`§7/${currentPath.join("/")}>`);
+        return;
+    }
+
+    else if (command == "rmdir") {
+        const name = rest[0];
+        const newFiles = deleteDirectory(turtleFiles, currentPath, name);
+        if (newFiles.type == "FileError") {
+            world.sendMessage(`Error: ${newFiles.error}`)
+            return;
+        }
+        turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
+        world.sendMessage(`§7/${currentPath.join("/")}>`);
+        return;
     }
 
     // Make files
-    if (command == "new") {
+    else if (command == "new") {
         const name = rest[0];
         const newFiles = makeFile(turtleFiles, currentPath, name);
         if (newFiles.type == "FileError") {
-            e.message = `Error: ${newFiles.error}`
+            world.sendMessage(`Error: ${newFiles.error}`)
             return;
         }
         turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
-        e.message = `§7${currentPath.join("/")}/${name}`;
+        world.sendMessage(`§7${currentPath.join("/")}/${name}`);
+        return;
+    }
+
+    else if (command == "del") {
+        const name = rest[0];
+        const newFiles = deleteFile(turtleFiles, currentPath, name);
+        if (newFiles.type == "FileError") {
+            world.sendMessage(`Error: ${newFiles.error}`)
+            return;
+        }
+        turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
+        world.sendMessage(`§7${currentPath.join("/")}/${name}`);
+        return;
     }
 
     // Write files
-    if (command == "edit") {
+    else if (command == "edit") {
         const name = rest[0];
         const file = readFile(turtleFiles, currentPath, name) as File | FileError;
-        if (file.type == "FileError") return world.say(file.error);
+        if (file.type == "FileError") return world.sendMessage(file.error);
         const newContent = await openFile(e.sender, name, file.content);
         writeFile(turtleFiles, currentPath, name, newContent);
         turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
     }
 
-    if (command == "run") {
-        try {
-            const name = rest[0];
-            const file = readFile(turtleFiles, currentPath, name) as File | FileError;
-            if (file.type == "FileError") return world.say(file.error);
+    // else if (command == "run") {
+    //     try {
+    //         const name = rest[0];
+    //         const file = readFile(turtleFiles, currentPath, name) as File | FileError;
+    //         if (file.type == "FileError") return world.sendMessage(file.error);
 
-            // Execute the file
-            const turtleInterpreter = new TurtleInterpreter(turtle);
-            await turtleInterpreter.runScript(file.content)
+    //         // Execute the file
+    //         const turtleInterpreter = new TurtleInterpreter(turtle);
+    //         await turtleInterpreter.runScript(file.content)
 
-            world.say(`Finished running ${file.name}`);
-        } catch (e) {
-            world.say("Error")
-            world.say(e.stack)
-            throw e
-        }
-    }
+    //         world.sendMessage(`Finished running ${file.name}`);
+    //     } catch (e) {
+    //         world.sendMessage("Error")
+    //         world.sendMessage(e.stack)
+    //         throw e
+    //     }
+    // }
 
-    if (command == "inventory") {
+    else if (command == "inventory") {
         const inventory = turtle.getComponent("minecraft:inventory") as EntityInventoryComponent
 
         for (var i = 0; i < 16; i++) {
             const item = inventory.container.getItem(i)
             if (item == undefined) continue;
-            world.say(`§7${i}.§r ${item.typeId} - ${item.amount}`)
+            world.sendMessage(`§7${i}.§r ${item.typeId} - ${item.amount}`)
         }
 
         e.cancel = true
     }
-})
 
-world.events.beforeChat.subscribe(async e => {
-    if (!e.message.startsWith("<")) return;
-    const message = e.message.substring(1).trimStart();
-    const [command, ...rest] = message.split(" ");
-    if (command == "draw") {
-        let x = parseInt(rest[0] ?? "0")
-        let y = parseInt(rest[1] ?? "0")
-        let col = parseInt(rest[2] ?? "0")
-
-        const blockPosition = new BlockLocation(0, -59, 0);
-        const pixel = e.sender.dimension.spawnEntity("coslang:pixel", blockPosition)
-
-        await Promise.all([
-            pixel.runCommandAsync(`event entity @s coslang:set_x_${x}`),
-            pixel.runCommandAsync(`event entity @s coslang:set_y_${y}`),
-            pixel.runCommandAsync(`event entity @s coslang:set_color_${col}`)
-        ])
-    }
+    else {
+        world.sendMessage(`${command} is not a recognised command, use help for a list of commands`)
+    }} catch(e) {console.warn(e); throw e}
 })

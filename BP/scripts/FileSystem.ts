@@ -1,4 +1,4 @@
-import { Player } from "@minecraft/server"
+import { Player, world } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
 
 export interface Directory {
@@ -74,6 +74,22 @@ export const makeDirectory = (dir: Directory, path: string[], dirName: string): 
     return dir;
 }
 
+export const deleteDirectory = (dir: Directory, path: string[], dirName: string): Directory | FileError => {
+    path = [...path]
+    if (path.length > 0) {
+        const index = dir.directories.findIndex(f => f.name == path.shift());
+        const result = deleteDirectory(dir.directories[index], path, dirName)
+        if (result.type == "FileError") return result;
+        dir.directories[index] = result;
+        return dir
+    }
+
+    const dirIndex = dir.directories.findIndex(f => f.name == dirName);
+    if (dirIndex == -1) return { type: "FileError", error: `directory ${dirName} does not exist!` };
+    dir.directories.splice(dirIndex, 1)
+    return dir;
+}
+
 export const writeFile = (dir: Directory, path: string[], fileName: string, content: string): Directory | FileError => {
     path = [...path]
     if (path.length > 0) {
@@ -106,11 +122,27 @@ export const readFile = (dir: Directory, path: string[], fileName: string): Dire
     return file;
 }
 
+export const deleteFile = (dir: Directory, path: string[], fileName: string): Directory | FileError => {
+    path = [...path]
+    if (path.length > 0) {
+        const index = dir.directories.findIndex(f => f.name == path.shift());
+        const result = deleteFile(dir.directories[index], path, fileName)
+        if (result.type == "FileError") return result;
+        dir.directories[index] = result;
+        return dir
+    }
+
+    const dirIndex = dir.files.findIndex(f => f.name == fileName);
+    if (dirIndex == -1) return { type: "FileError", error: `file ${fileName} does not exist!` };
+    dir.files.splice(dirIndex, 1)
+    return dir;
+}
+
 export const makeFile = (dir: Directory, path: string[], fileName: string): Directory | FileError => {
     path = [...path]
     if (path.length > 0) {
         const index = dir.directories.findIndex(f => f.name == path.shift());
-        const result = makeDirectory(dir.directories[index], path, fileName)
+        const result = makeFile(dir.directories[index], path, fileName)
         if (result.type == "FileError") return result;
         dir.directories[index] = result;
         return dir;

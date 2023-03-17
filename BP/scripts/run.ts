@@ -1,7 +1,6 @@
 import { Parser } from "./cosmic/src/Parser";
 import { Tokenize } from "./cosmic/src/Lexer";
 import { BeforeChatEvent, Entity, Vector, world } from "@minecraft/server"
-import { Turtle, drawTurtle } from "./structs/Turtle"
 import { Context } from "./cosmic/src/Context";
 import { NativeFunction } from "./cosmic/src/Struct/NativeFunction";
 import { StructInstance } from "./cosmic/src/Struct/StructInstance";

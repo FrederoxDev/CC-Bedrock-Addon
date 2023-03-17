@@ -5,7 +5,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "@minecraft/server": "^1.1.0-beta.1.19.60-stable",
+    "@minecraft/server": "^1.1.0-beta.1.19.70-stable",
     "@minecraft/server-ui": "^1.0.0-beta.11940b24",
     "get-pixels": "^3.3.3"
   },

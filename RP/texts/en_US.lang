@@ -7,3 +7,5 @@ entity.coslang:turtle_controller.name=Turtle Controller
 tile.coslang:display.name=Display
 item.spawn_egg.entity.coslang:pixel.name=Spawn Pixel
 entity.coslang:pixel.name=Pixel
+
+turtle.connect=Connected with %s

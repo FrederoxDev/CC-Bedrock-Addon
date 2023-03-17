@@ -7,6 +7,20 @@
             }
         }
     },
+    "third_party_server_screen@server_form.base_screen": {
+        "$screen_content": "server_form.main_screen_content",
+        "button_mappings": [
+          {
+            "from_button_id": "button.menu_cancel",
+            "to_button_id": "button.menu_exit",
+            "mapping_type": "global"
+          }
+        ]
+      },
+    "base_screen@common.base_screen": {
+        "$screen_animations|default": [],
+        "$is_full_screen_layout|default": true
+    },
     "multiline_input@server_form.option_text_edit": {
         "$option_label": "#custom_text",
         "$option_place_holder_text": "#custom_placeholder_text",
