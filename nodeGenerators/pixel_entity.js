@@ -51,14 +51,26 @@ const pixel = {
 				}
 			}
 		},
-		"component_groups": {},
+		"component_groups": {
+			"coslang:despawn": {
+				"minecraft:instant_despawn": {}
+			}
+		},
 		"components": {
 			"minecraft:collision_box": {
 				"height": 0,
 				"width": 0
 			}
 		},
-		"events": {}
+		"events": {
+			"coslang:despawn": {
+				"add": {
+					"component_groups": [
+						"coslang:despawn"
+					]
+				}
+			}
+		}
 	}
 }
 

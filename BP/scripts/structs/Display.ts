@@ -5,6 +5,7 @@ import { NativeFunction } from "../cosmic/src/Struct/NativeFunction";
 import { NativeFunctionHelper } from "../cosmic/src/Struct/NativeFunctionHelper";
 import { StructInstance } from "../cosmic/src/Struct/StructInstance";
 import { StructType } from "../cosmic/src/Struct/StructType";
+import { delayInTicks } from "./Thread";
 console.log = console.warn
 
 interface PixelData {
@@ -12,7 +13,9 @@ interface PixelData {
     y: number,
     width: number,
     height: number,
-    color: number
+    color: number,
+    screenX: number,
+    screenY: number,
 }
 
 const generateLargeDisplayCommands = (pixelBuffer: number[], origin: Vector3, screenWidth: number, screenHeight: number): PixelData[] => {
@@ -20,7 +23,6 @@ const generateLargeDisplayCommands = (pixelBuffer: number[], origin: Vector3, sc
 
     for (var screenXOffset = 0; screenXOffset < screenWidth; screenXOffset++) {
         for (var screenYOffset = 0; screenYOffset < screenHeight; screenYOffset++) {
-            const pos = { x: origin.x + screenXOffset, y: origin.y + screenYOffset, z: origin.z };
             const screenBuffer: number[] = []
 
             // Create a smaller buffer which is 16x16 for that specific screen
@@ -30,14 +32,14 @@ const generateLargeDisplayCommands = (pixelBuffer: number[], origin: Vector3, sc
                 screenBuffer.push(pixelBuffer[y * (screenWidth * 16) + x]);
             }
 
-            commands.push(...generateDisplayCommands(screenBuffer, pos))
+            commands.push(...generateDisplayCommands(screenBuffer, screenXOffset, screenYOffset))
         }
     }
 
     return commands;
 }
 
-const generateDisplayCommands = (pixelBuffer: number[], pos: Vector3): PixelData[] => {
+const generateDisplayCommands = (pixelBuffer: number[], screenX: number, screenY: number): PixelData[] => {
     const commands: PixelData[] = [];
     var hasDrawn = new Array(256).fill(false);
 
@@ -67,7 +69,9 @@ const generateDisplayCommands = (pixelBuffer: number[], pos: Vector3): PixelData
                 y,
                 width: 1 + expandX,
                 height: 1 + expandY,
-                color: pixelBuffer[idx]
+                color: pixelBuffer[idx],
+                screenX,
+                screenY
             });
         }
     }
@@ -115,21 +119,24 @@ export const Display: StructType = new StructType("Display", [
                 const screenLoc = { x: blockLocation.x + screenX, y: blockLocation.y + screenY, z: blockLocation.z }
                 overworld.getEntitiesAtBlockLocation(screenLoc)
                     .filter(e => e.typeId == "coslang:pixel")
-                    .forEach(e => e.kill());
+                    .forEach(e => {
+                        e.triggerEvent("coslang:despawn")
+                    })
             }
         }
 
-        // Draw the screen buffer
-        var promises: Promise<CommandResult>[] = [];
-
         const pixels = generateLargeDisplayCommands(pixelBuffer, blockLocation, width, height)
         const pixelEntities: Entity[] = []
-        world.sendMessage(`Generated screen using ${pixels.length} pixels`)
-        world.sendMessage(JSON.stringify(pixels))
+        // world.sendMessage(`Generated screen using ${pixels.length} pixels`)
+        // world.sendMessage(JSON.stringify(pixels))
 
         for (var i = 0; i < pixels.length; i++) {
             const pixel = pixels[i];
-            const blockCorner = {x: blockLocation.x + 0.5, y: blockLocation.y, z: blockLocation.z + 0.5}
+            const blockCorner = {
+                x: blockLocation.x + 0.5 + pixel.screenX, 
+                y: blockLocation.y + pixel.screenY, 
+                z: blockLocation.z + 0.5
+            }
             const pixelEntity = overworld.spawnEntity(`coslang:pixel<coslang:set_${pixel.x}_${pixel.y}>`, blockCorner);
 
             if (pixel.color != 0) {
@@ -172,8 +179,6 @@ export const Display: StructType = new StructType("Display", [
         //     }
         // }
 
-        await Promise.all(promises)
-        promises = [];
         return [null, ctx];
     })
 ]);

@@ -9,7 +9,6 @@
 					"position": ["query.property('coslang:x')", "query.property('coslang:y')", 0]
 				},
 				"size_bone": {
-					"position": ["query.property('coslang:x_size')/2", "query.property('coslang:y_size')/2", 0],
 					"scale": ["query.property('coslang:x_size')", "query.property('coslang:y_size')", 1]
 				}
 			}

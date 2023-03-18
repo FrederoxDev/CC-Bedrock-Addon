@@ -6,7 +6,7 @@ import { StructType } from "../cosmic/src/Struct/StructType";
 
 export const delayInTicks = (ticks: number): Promise<void> => {
     return new Promise(resolve => {
-        const id = system.runSchedule(() => {
+        const id = system.runTimeout(() => {
             system.clearRun(id);
             resolve()
         }, ticks)

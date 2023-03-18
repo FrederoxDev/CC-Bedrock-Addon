@@ -10,13 +10,13 @@ import { StructType } from "../cosmic/src/Struct/StructType";
 console.log = console.warn
 
 const validatePointOnScreen = (x: number, y: number, width: number, height: number, interpreter: Interpreter, start: number, end: number) => {
-    if (x < 0 || x >= width || y < 0 || y >= width) {
-        throw interpreter.runtimeErrorCode(
-            `Pixel (${x}, ${y}) is outside of the pixel display!`,
-            start,
-            end
-        )
-    }
+    // if (x < 0 || x >= width || y < 0 || y >= width) {
+    //     throw interpreter.runtimeErrorCode(
+    //         `Pixel (${x}, ${y}) is outside of the pixel display!`,
+    //         start,
+    //         end
+    //     )
+    // }
 
     return [x, y];
 }
