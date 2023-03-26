@@ -79,7 +79,7 @@ const generateDisplayCommands = (pixelBuffer: number[], screenX: number, screenY
     return commands;
 }
 
-export const Display: StructType = new StructType("Display", [
+export const Display: StructType = new StructType("Display", [], [
     new NativeFunction("Connect", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 5, start, end);
         const instance = new StructInstance(Display);

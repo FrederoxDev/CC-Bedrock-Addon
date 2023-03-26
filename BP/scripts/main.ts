@@ -4,7 +4,7 @@ import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, op
 import { OnTurtleBreak, OnTurtleInteract, OnTurtlePlace } from "./Turtles";
 import { connectedTurtleProp, InitializeProperties, turtleFilesProp, turtleIdProp } from "./Properties";
 import { ModalFormData, ModalFormResponse, ActionFormData } from "@minecraft/server-ui";
-import { TurtleInterpreter } from "./run";
+import { TurtleInterpreter } from "./Run";
 
 world.events.worldInitialize.subscribe(InitializeProperties);
 world.events.blockPlace.subscribe(OnTurtlePlace);

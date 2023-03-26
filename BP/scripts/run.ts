@@ -47,12 +47,6 @@ export class TurtleInterpreter {
         }
 
         const globals = new Context()
-        globals.setSymbol("Display", Display)
-        globals.setSymbol("PixelBuffer", PixelBuffer)
-        globals.setSymbol("Thread", Thread)
-        globals.setSymbol("Math", MathStruct)
-        globals.setSymbol("Color", Color)
-
         globals.setSymbol("log", new NativeFunction("log", async (interpreter, ctx, start, end, args) => {
             var args = args.map((arg: any) => {
                 if (arg instanceof StructInstance) {
@@ -64,7 +58,14 @@ export class TurtleInterpreter {
             return [null, ctx];
         }))
 
-        const interpreter = new Interpreter(input)
+        const interpreter = new Interpreter(input, [
+            Display,
+            PixelBuffer,
+            Thread,
+            MathStruct
+        ], [
+            Color
+        ])
 
         try {
             await interpreter.findTraverseFunc(ast, globals)

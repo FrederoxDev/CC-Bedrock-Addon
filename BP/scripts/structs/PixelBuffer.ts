@@ -69,7 +69,7 @@ const fontPoints = {
     ",": [[2,2],[2,1],[2,0]]
 }
 
-export const PixelBuffer = new StructType("PixelBuffer", [
+export const PixelBuffer = new StructType("PixelBuffer", [], [
     new NativeFunction("New", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 2, start, end);
         const instance = new StructInstance(PixelBuffer);

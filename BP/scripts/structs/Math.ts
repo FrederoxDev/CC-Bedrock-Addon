@@ -3,7 +3,7 @@ import { NativeFunction } from "../cosmic/src/Struct/NativeFunction";
 import { NativeFunctionHelper } from "../cosmic/src/Struct/NativeFunctionHelper";
 import { StructType } from "../cosmic/src/Struct/StructType";
 
-export const MathStruct = new StructType("Math", [
+export const MathStruct = new StructType("Math", [], [
     new NativeFunction("Sin", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 1, start, end);
         const value = Math.sin(getNumberLiteral(helper.expectType(0, "Number")));

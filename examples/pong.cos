@@ -1,45 +1,53 @@
-let screenWidth = 48;
-let screenHeight = 32;
-let display = Display::Connect(-1, -59, 0, 3, 2);
+import Display;
+import PixelBuffer;
+import Thread;
+import Math;
+import Color;
 
-let paddleHeight = 4;
+fn Main() {
+    let screenWidth = 48;
+    let screenHeight = 32;
+    let display = Display::Connect(-1, -59, 0, 3, 2);
 
-let ballRadius = 1;
-let ballX = screenWidth / 2;
-let ballY = screenHeight / 2;
-let ballVelocityY = 2;
-let ballVelocityX = 2;
+    let paddleHeight = 4;
 
-let ballColor = Color.White;
+    let ballRadius = 1;
+    let ballX = screenWidth / 2;
+    let ballY = screenHeight / 2;
+    let ballVelocityY = 2;
+    let ballVelocityX = 2;
 
-let leftPaddleY = screenHeight / 2;
-let rightPaddleY = screenHeight / 2;
+    let ballColor = Color.White;
 
-while (true) {
-    ballX = ballX + ballVelocityX;
-    ballY = ballY + ballVelocityY;
+    let leftPaddleY = screenHeight / 2;
+    let rightPaddleY = screenHeight / 2;
 
-    if (ballY >= screenHeight - 2 || ballY <= 2) ballVelocityY = ballVelocityY * -1;
-    if (ballX >= screenWidth - 2 || ballX <= 2) ballVelocityX = ballVelocityX * -1;
+    while (true) {
+        ballX = ballX + ballVelocityX;
+        ballY = ballY + ballVelocityY;
 
-    if (ballVelocityX > 0) {
-        if (rightPaddleY > ballY) rightPaddleY = rightPaddleY - 2;
-        if (rightPaddleY < ballY) rightPaddleY = rightPaddleY + 2;
-    } 
+        if (ballY >= screenHeight - 2 || ballY <= 2) ballVelocityY = ballVelocityY * -1;
+        if (ballX >= screenWidth - 2 || ballX <= 2) ballVelocityX = ballVelocityX * -1;
 
-    if (ballVelocityX < 0) {
-        if (leftPaddleY > ballY) leftPaddleY = leftPaddleY - 2;
-        if (leftPaddleY < ballY) leftPaddleY = leftPaddleY + 2;
-    } 
-    
-    let buffer = PixelBuffer::New(screenWidth, screenHeight);
-    buffer.DrawLine(0, leftPaddleY - paddleHeight, 0, leftPaddleY + paddleHeight, Color.Blue);
-    buffer.DrawLine(1, leftPaddleY - paddleHeight, 1, leftPaddleY + paddleHeight, Color.Blue);
+        if (ballVelocityX > 0) {
+            if (rightPaddleY > ballY) rightPaddleY = rightPaddleY - 2;
+            if (rightPaddleY < ballY) rightPaddleY = rightPaddleY + 2;
+        } 
 
-    buffer.DrawLine(screenWidth - 1, rightPaddleY - paddleHeight, screenWidth - 1, rightPaddleY + paddleHeight, Color.Red);
-    buffer.DrawLine(screenWidth - 2, rightPaddleY - paddleHeight, screenWidth - 2, rightPaddleY + paddleHeight, Color.Red);
+        if (ballVelocityX < 0) {
+            if (leftPaddleY > ballY) leftPaddleY = leftPaddleY - 2;
+            if (leftPaddleY < ballY) leftPaddleY = leftPaddleY + 2;
+        } 
+        
+        let buffer = PixelBuffer::New(screenWidth, screenHeight);
+        buffer.DrawLine(0, leftPaddleY - paddleHeight, 0, leftPaddleY + paddleHeight, Color.Blue);
+        buffer.DrawLine(1, leftPaddleY - paddleHeight, 1, leftPaddleY + paddleHeight, Color.Blue);
 
-    buffer.DrawCircle(ballX, ballY, ballRadius, true, ballColor);
-    display.DrawBuffer(buffer);
-    Thread::Sleep(1);
+        buffer.DrawLine(screenWidth - 1, rightPaddleY - paddleHeight, screenWidth - 1, rightPaddleY + paddleHeight, Color.Red);
+        buffer.DrawLine(screenWidth - 2, rightPaddleY - paddleHeight, screenWidth - 2, rightPaddleY + paddleHeight, Color.Red);
+
+        buffer.DrawCircle(ballX, ballY, ballRadius, true, ballColor);
+        display.DrawBuffer(buffer);
+        Thread::Sleep(1);
+    }
 }

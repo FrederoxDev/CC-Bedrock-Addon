@@ -80,7 +80,7 @@ const pickUpBlock = (blockPos: BlockLocation, inventory: EntityInventoryComponen
     })
 }
 
-export const Turtle = new StructType("Turtle", [
+export const Turtle = new StructType("Turtle", [], [
     // new NativeFunction("Forward", async (interpreter, ctx, args) => {
     //     await delay()
     //     const oldPosition: [number, number, number] = ctx.getProtectedData("position");

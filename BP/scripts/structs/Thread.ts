@@ -13,7 +13,7 @@ export const delayInTicks = (ticks: number): Promise<void> => {
     });
 }
 
-export const Thread = new StructType("Thread", [
+export const Thread = new StructType("Thread", [], [
     new NativeFunction("Sleep", async (interpreter, ctx, start, end, args) => {
         const helper = new NativeFunctionHelper(interpreter, args, 1, start, end);
         const ticks = getNumberLiteral(helper.expectType(0, "Number"));
