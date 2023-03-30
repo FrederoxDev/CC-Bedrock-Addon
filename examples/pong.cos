@@ -17,7 +17,7 @@ fn Main() {
     let ballVelocityY = 2;
     let ballVelocityX = 2;
 
-    let ballColor = Color.White;
+    let ballColor = 0;
 
     let leftPaddleY = screenHeight / 2;
     let rightPaddleY = screenHeight / 2;
@@ -40,11 +40,11 @@ fn Main() {
         } 
         
         let buffer = PixelBuffer::New(screenWidth, screenHeight);
-        buffer.DrawLine(0, leftPaddleY - paddleHeight, 0, leftPaddleY + paddleHeight, Color.Blue);
-        buffer.DrawLine(1, leftPaddleY - paddleHeight, 1, leftPaddleY + paddleHeight, Color.Blue);
+        buffer.DrawLine(0, leftPaddleY - paddleHeight, 0, leftPaddleY + paddleHeight, 1);
+        buffer.DrawLine(1, leftPaddleY - paddleHeight, 1, leftPaddleY + paddleHeight, 1);
 
-        buffer.DrawLine(screenWidth - 1, rightPaddleY - paddleHeight, screenWidth - 1, rightPaddleY + paddleHeight, Color.Red);
-        buffer.DrawLine(screenWidth - 2, rightPaddleY - paddleHeight, screenWidth - 2, rightPaddleY + paddleHeight, Color.Red);
+        buffer.DrawLine(screenWidth - 1, rightPaddleY - paddleHeight, screenWidth - 1, rightPaddleY + paddleHeight, 2);
+        buffer.DrawLine(screenWidth - 2, rightPaddleY - paddleHeight, screenWidth - 2, rightPaddleY + paddleHeight, 2);
 
         buffer.DrawCircle(ballX, ballY, ballRadius, true, ballColor);
         display.DrawBuffer(buffer);
