@@ -1,11 +1,9 @@
-import { CommandResult, Entity, Vector3, world } from "@minecraft/server";
-import { Interpreter } from "../cosmic/src/Interpreter";
+import { Entity, Vector3, world } from "@minecraft/server";
 import { getNumberLiteral } from "../cosmic/src/Primitives/Number";
 import { NativeFunction } from "../cosmic/src/Struct/NativeFunction";
 import { NativeFunctionHelper } from "../cosmic/src/Struct/NativeFunctionHelper";
 import { StructInstance } from "../cosmic/src/Struct/StructInstance";
 import { StructType } from "../cosmic/src/Struct/StructType";
-import { delayInTicks } from "./Thread";
 console.log = console.warn
 
 interface PixelData {
@@ -127,8 +125,6 @@ export const Display: StructType = new StructType("Display", [], [
 
         const pixels = generateLargeDisplayCommands(pixelBuffer, blockLocation, width, height)
         const pixelEntities: Entity[] = []
-        // world.sendMessage(`Generated screen using ${pixels.length} pixels`)
-        // world.sendMessage(JSON.stringify(pixels))
 
         for (var i = 0; i < pixels.length; i++) {
             const pixel = pixels[i];
@@ -149,35 +145,6 @@ export const Display: StructType = new StructType("Display", [], [
 
             pixelEntities.push(pixelEntity);
         }
-
-        // for (var screenX = 0; screenX < width; screenX++) {
-        //     for (var screenY = 0; screenY < height; screenY++) {
-        //         const screenLoc = {x: blockLocation.x + screenX, y: blockLocation.y + screenY, z: blockLocation.z}
-
-        //         for (var i = 0; i < 256; i++) {
-        //             const localX = i % 16;
-        //             const localY = Math.floor(i / 16);
-        //             const x = (screenX * 16) + localX;
-        //             const y = (screenY * 16) + localY;
-        //             const idx = y * bufferWidth + x;
-
-        //             if (pixelBuffer[idx] == -1) continue;
-
-        //             // Only run 32 commands at once to prevent going over command limit
-        //             if (promises.length > 32) {
-        //                 await Promise.all(promises)
-        //                 promises = [];
-        //             }
-
-        //             const pixel = world.getDimension("overworld")
-        //                 .spawnEntity(`coslang:pixel<coslang:set_${localX}_${localY}>`, screenLoc)
-
-        //             // Dont set the color of white pixels
-        //             if (pixelBuffer[idx] != 0)
-        //                 promises.push(pixel.runCommandAsync(`event entity @s coslang:set_color_${pixelBuffer[idx]}`))
-        //         }
-        //     }
-        // }
 
         return [null, ctx];
     })

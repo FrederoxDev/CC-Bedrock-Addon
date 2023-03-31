@@ -8,3 +8,4 @@ builds
 /node_modules/
 err/
 input.cos
+dist/
