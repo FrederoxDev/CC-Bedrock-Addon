@@ -1,4 +1,4 @@
-import { Player, system, world } from "@minecraft/server"
+import { Player, system } from "@minecraft/server"
 import { FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui"
 
 export interface Directory {

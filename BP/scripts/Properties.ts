@@ -1,4 +1,4 @@
-import { DynamicPropertiesDefinition ,EntityTypes, WorldInitializeAfterEvent, world } from "@minecraft/server";
+import { DynamicPropertiesDefinition ,EntityTypes, WorldInitializeAfterEvent } from "@minecraft/server";
 
 export const connectedTurtleProp = "connectedTurtle";
 export const turtleFilesProp = "turtleFiles";
