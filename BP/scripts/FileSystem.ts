@@ -1,5 +1,5 @@
-import { Player, world } from "@minecraft/server"
-import { ModalFormData } from "@minecraft/server-ui"
+import { Player, system, world } from "@minecraft/server"
+import { FormCancelationReason, ModalFormData, ModalFormResponse } from "@minecraft/server-ui"
 
 export interface Directory {
     name: string
@@ -160,14 +160,19 @@ export const makeFile = (dir: Directory, path: string[], fileName: string): Dire
     return dir;
 }
 
-export const openFile = async(player: Player, fileName: string, content: string): Promise<string> => {
-    const modal = new ModalFormData()
-        .title(fileName)
-        .textField("Paste your file:", "", "");
+function sleep(ms: number) {
+    return new Promise(resolve => system.runTimeout(resolve, ms * 1));
+}
 
-    // @ts-ignore
-    const res = await modal.show(player);
-    if (res.cancelationReason == "userBusy") return openFile(player, fileName, content);
+export const openFile = async(player: Player, fileName: string, content: string): Promise<string> => {
+    let res : undefined | ModalFormResponse = undefined;
+    while(res == undefined || res?.cancelationReason == FormCancelationReason.UserBusy){
+        await sleep(10);
+        const modal = new ModalFormData()
+            .title(fileName)
+            .textField("Paste your file:", "", "");
+        res = await modal.show(player);
+    }
     return res.formValues![0];
 }
 

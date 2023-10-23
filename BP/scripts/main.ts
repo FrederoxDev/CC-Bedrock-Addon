@@ -1,20 +1,19 @@
 // import { TurtleInterpreter } from "./run";
-import { world, Entity, EntityInventoryComponent, BeforeChatEvent, Player } from "@minecraft/server"
-import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError, deleteDirectory, deleteFile } from "./FileSystem";
+import { world, Entity, EntityInventoryComponent } from "@minecraft/server"
 import { OnTurtleBreak, OnTurtleInteract, OnTurtlePlace } from "./Turtles";
+import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError, deleteDirectory, deleteFile } from "./FileSystem";
 import { connectedTurtleProp, InitializeProperties, turtleFilesProp, turtleIdProp } from "./Properties";
-import { ModalFormData, ModalFormResponse, ActionFormData } from "@minecraft/server-ui";
-import { TurtleInterpreter } from "./Run";
+import { TurtleInterpreter } from "./run";
 
-world.events.worldInitialize.subscribe(InitializeProperties);
-world.events.blockPlace.subscribe(OnTurtlePlace);
-world.events.blockBreak.subscribe(OnTurtleBreak);
-world.events.itemUseOn.subscribe(OnTurtleInteract);
+world.afterEvents.worldInitialize.subscribe(InitializeProperties);
+world.afterEvents.playerPlaceBlock.subscribe(OnTurtlePlace);
+world.afterEvents.playerBreakBlock.subscribe(OnTurtleBreak);
+world.afterEvents.itemUseOn.subscribe(OnTurtleInteract);
 
 var currentPath: string[] = [];
 
 // Command line
-world.events.beforeChat.subscribe(async e => {
+world.beforeEvents.chatSend.subscribe(async e => {
     try {
         if (!e.message.startsWith(">")) return;
         const message = e.message.substring(1).trimStart();
@@ -50,7 +49,20 @@ world.events.beforeChat.subscribe(async e => {
             world.sendMessage("[No Turtle Connected]");
             return;
         }
-
+        //Help command
+        else if (command == "help"){
+            world.sendMessage(`Command list:
+            -help
+            -tree
+            -cd
+            -mkdir
+            -rmdir
+            -new
+            -del
+            -edit
+            -run
+            -inventory`)
+        }
         // Tree command
         else if (command == "tree") {
             const resolved = resolveDirectory(turtleFiles, currentPath)

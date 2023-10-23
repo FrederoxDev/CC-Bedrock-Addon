@@ -1,6 +1,6 @@
 import { Parser } from "./cosmic/src/Parser";
 import { Tokenize } from "./cosmic/src/Lexer";
-import { BeforeChatEvent, Entity, Vector, world } from "@minecraft/server"
+import { Entity, world } from "@minecraft/server"
 import { Context } from "./cosmic/src/Context";
 import { NativeFunction } from "./cosmic/src/Struct/NativeFunction";
 import { StructInstance } from "./cosmic/src/Struct/StructInstance";

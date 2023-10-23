@@ -18,8 +18,8 @@
 		"description": "pack.description",
 		"min_engine_version": [
 			1,
-			19,
-			50
+			20,
+			32
 		],
 		"uuid": "9f8c728c-b703-4bec-8d6f-887430730884",
 		"version": [
@@ -42,7 +42,7 @@
 			"type": "script",
 			"language": "javascript",
 			"uuid": "fbf18160-8abe-42cc-ab20-1c511799d3aa",
-			"entry": "scripts/Main.js",
+			"entry": "scripts/main.js",
 			"version": [
 				1,
 				0,
@@ -53,7 +53,7 @@
 	"dependencies": [
 		{
 			"module_name": "@minecraft/server",
-			"version": "1.1.0-beta"
+			"version": "1.6.0-beta"
 		},
 		{
 			"module_name": "@minecraft/server-gametest",
@@ -61,7 +61,7 @@
 		},
 		{
 			"module_name": "@minecraft/server-ui",
-			"version": "1.0.0-beta"
+			"version": "1.2.0-beta"
 		}
 	]
 }
