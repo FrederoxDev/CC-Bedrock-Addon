@@ -9,4 +9,3 @@ builds
 err/
 input.cos
 dist/
-/package-lock.json
