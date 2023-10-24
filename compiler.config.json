@@ -1,5 +1,5 @@
 {
     "packName": "ComputerCraft",
-    "resourcePackPath": "\\RP\\",
-    "behaviourPackPath": "\\BP\\"
+    "resourcePackPath": "/RP/",
+    "behaviourPackPath": "/BP/"
 }
