@@ -1,17 +1,20 @@
 import { ItemStartUseOnAfterEvent, PlayerBreakBlockAfterEvent, PlayerPlaceBlockAfterEvent, Vector, world } from "@minecraft/server";
-import { nextTurtleIdProp, turtleIdProp, connectedTurtleProp } from "./Properties";
+import { nextTurtleIdProp, turtleIdProp, connectedTurtleProp, turtleFilesProp } from "./Properties";
 
 export const OnTurtlePlace = (e: PlayerPlaceBlockAfterEvent) => {
     if (e.block.typeId !== "coslang:turtle") return;
     const controller = e.dimension.spawnEntity("coslang:turtle_controller", e.block.location);
     const nextId = (world.getDynamicProperty(nextTurtleIdProp) as number) ?? 0;
     controller.setDynamicProperty(turtleIdProp, nextId + 1);
+    // Set default value
+    controller.setDynamicProperty(turtleFilesProp, 130000)
+
     const midPos = {
         x: e.block.location.x + 0.5,
         y: e.block.location.y,
         z: e.block.location.z + 0.5
     }
-    controller.teleport(midPos,{ dimension : controller.dimension, facingLocation : new Vector(0, 0, 0), keepVelocity : false })
+    controller.teleport(midPos, { dimension: controller.dimension, facingLocation: new Vector(0, 0, 0), keepVelocity: false })
     world.setDynamicProperty(nextTurtleIdProp, nextId + 1);
     controller.nameTag = `Turtle: ${nextId + 1}`;
 }

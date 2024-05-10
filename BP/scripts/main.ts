@@ -1,11 +1,10 @@
 // import { TurtleInterpreter } from "./run";
 import { world, Entity, EntityInventoryComponent } from "@minecraft/server"
 import { OnTurtleBreak, OnTurtleInteract, OnTurtlePlace } from "./Turtles";
-import { Directory, makeDirectory, directoryTree, resolveDirectory, makeFile, openFile, readFile, File, writeFile, FileError, deleteDirectory, deleteFile } from "./FileSystem";
-import { connectedTurtleProp, InitializeProperties, turtleFilesProp, turtleIdProp } from "./Properties";
+import { Directory, File, FileError, FileSystem } from "./FileSystem";
+import { connectedTurtleProp, turtleFilesProp, turtleIdProp } from "./Properties";
 import { TurtleInterpreter } from "./run";
 
-world.afterEvents.worldInitialize.subscribe(InitializeProperties);
 world.afterEvents.playerPlaceBlock.subscribe(OnTurtlePlace);
 world.afterEvents.playerBreakBlock.subscribe(OnTurtleBreak);
 world.afterEvents.itemUseOn.subscribe(OnTurtleInteract);
@@ -65,12 +64,12 @@ world.beforeEvents.chatSend.subscribe(async e => {
         }
         // Tree command
         else if (command == "tree") {
-            const resolved = resolveDirectory(turtleFiles, currentPath)
+            const resolved = FileSystem.resolveDirectory(turtleFiles, currentPath)
             if (resolved.type == "FileError") {
                 world.sendMessage(resolved.error);
                 return;
             }
-            world.sendMessage(directoryTree(resolved));
+            world.sendMessage(FileSystem.directoryTree(resolved));
         }
 
         // Changing directories with relative paths
@@ -83,7 +82,7 @@ world.beforeEvents.chatSend.subscribe(async e => {
                 else newPath.push(relative[i])
             }
 
-            const dir = resolveDirectory(turtleFiles, newPath);
+            const dir = FileSystem.resolveDirectory(turtleFiles, newPath);
             if (dir.type == "FileError") {
                 world.sendMessage(`Error: ${dir.error}`)
                 return;
@@ -96,7 +95,7 @@ world.beforeEvents.chatSend.subscribe(async e => {
         // Make directories
         else if (command == "mkdir") {
             const name = rest[0];
-            const newFiles = makeDirectory(turtleFiles, currentPath, name);
+            const newFiles = FileSystem.makeDirectory(turtleFiles, currentPath, name);
             if (newFiles.type == "FileError") {
                 world.sendMessage(`Error: ${newFiles.error}`);
                 return;
@@ -108,7 +107,7 @@ world.beforeEvents.chatSend.subscribe(async e => {
 
         else if (command == "rmdir") {
             const name = rest[0];
-            const newFiles = deleteDirectory(turtleFiles, currentPath, name);
+            const newFiles = FileSystem.deleteDirectory(turtleFiles, currentPath, name);
             if (newFiles.type == "FileError") {
                 world.sendMessage(`Error: ${newFiles.error}`)
                 return;
@@ -121,7 +120,7 @@ world.beforeEvents.chatSend.subscribe(async e => {
         // Make files
         else if (command == "new") {
             const name = rest[0];
-            const newFiles = makeFile(turtleFiles, currentPath, name);
+            const newFiles = FileSystem.makeFile(turtleFiles, currentPath, name);
             if (newFiles.type == "FileError") {
                 world.sendMessage(`Error: ${newFiles.error}`)
                 return;
@@ -133,7 +132,7 @@ world.beforeEvents.chatSend.subscribe(async e => {
 
         else if (command == "del") {
             const name = rest[0];
-            const newFiles = deleteFile(turtleFiles, currentPath, name);
+            const newFiles = FileSystem.deleteFile(turtleFiles, currentPath, name);
             if (newFiles.type == "FileError") {
                 world.sendMessage(`Error: ${newFiles.error}`)
                 return;
@@ -146,16 +145,16 @@ world.beforeEvents.chatSend.subscribe(async e => {
         // Write files
         else if (command == "edit") {
             const name = rest[0];
-            const file = readFile(turtleFiles, currentPath, name) as File | FileError;
+            const file = FileSystem.readFile(turtleFiles, currentPath, name) as File | FileError;
             if (file.type == "FileError") return world.sendMessage(file.error);
-            const newContent = await openFile(e.sender, name, file.content);
-            writeFile(turtleFiles, currentPath, name, newContent);
+            const newContent = await FileSystem.openFile(e.sender, name, file.content);
+            FileSystem.writeFile(turtleFiles, currentPath, name, newContent);
             turtle.setDynamicProperty(turtleFilesProp, JSON.stringify(turtleFiles))
         }
 
         else if (command == "run") {
             const name = rest[0];
-            const file = readFile(turtleFiles, currentPath, name) as File | FileError;
+            const file = FileSystem.readFile(turtleFiles, currentPath, name) as File | FileError;
             if (file.type == "FileError") return world.sendMessage(file.error);
 
             // Execute the file
@@ -167,7 +166,7 @@ world.beforeEvents.chatSend.subscribe(async e => {
             const inventory = turtle.getComponent("minecraft:inventory") as EntityInventoryComponent
 
             for (var i = 0; i < 16; i++) {
-                const item = inventory.container.getItem(i)
+                const item = inventory.container!.getItem(i)
                 if (item == undefined) continue;
                 world.sendMessage(`§7${i}.§r ${item.typeId} - ${item.amount}`)
             }
