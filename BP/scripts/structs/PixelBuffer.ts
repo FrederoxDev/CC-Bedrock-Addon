@@ -1,4 +1,3 @@
-import { CommandResult, world } from "@minecraft/server";
 import { Interpreter } from "../cosmic/src/Interpreter";
 import { getBooleanLiteral } from "../cosmic/src/Primitives/Boolean";
 import { getNumberLiteral } from "../cosmic/src/Primitives/Number";
